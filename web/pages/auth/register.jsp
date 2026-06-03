@@ -1,18 +1,17 @@
-<%-- Document : login Created on : Jun 3, 2026, 8:46:11 AM Author : Lenovo --%>
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Log In - SewaIn</title>
+    <title>Create Account - SewaIn</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css?v=1.2" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/register.css?v=1.2" />
   </head>
   <body>
     <a class="back-link" href="${pageContext.request.contextPath}/index.jsp">← Back to Home</a>
@@ -30,9 +29,9 @@
       </section>
 
       <section class="split-right">
-        <div class="login-card" role="region" aria-labelledby="login-title">
-          <h2 id="login-title">Log In</h2>
-          <p class="sub">Enter your details to join SewaIn.</p>
+        <div class="login-card" role="region" aria-labelledby="reg-title">
+          <h2 id="reg-title">Create Account</h2>
+          <p class="sub">Join SewaIn — simple, fast, and secure.</p>
 
           <% if (request.getAttribute("errorMsg") != null) { %>
               <div class="alert alert-danger" style="color: #e53e3e; background-color: #fff5f5; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #fed7d7; font-size: 14px; text-align: left;">
@@ -46,20 +45,41 @@
           <% } %>
 
           <form
-            id="loginForm"
-            action="${pageContext.request.contextPath}/login"
+            id="registerForm"
+            action="${pageContext.request.contextPath}/register"
             method="post"
             novalidate
           >
             <div class="field">
               <input
+                id="fullname"
+                name="username" type="text"
+                required
+                autocomplete="name"
+              />
+              <label for="fullname">Full Name</label>
+            </div>
+
+            <div class="field">
+              <input
                 id="email"
-                name="email_or_username"
+                name="email"
                 type="email"
                 required
                 autocomplete="email"
               />
               <label for="email">Email Address</label>
+            </div>
+
+            <div class="field">
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                autocomplete="tel"
+              />
+              <label for="phone">Phone Number</label>
             </div>
 
             <div class="field field-password">
@@ -68,51 +88,21 @@
                 name="password"
                 type="password"
                 required
-                autocomplete="current-password"
+                autocomplete="new-password"
               />
               <label for="password">Password</label>
-              <button
-                type="button"
-                class="toggle-pass"
-                aria-label="Show password"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7z"
-                    stroke="currentColor"
-                    stroke-width="1.2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
-                    stroke="currentColor"
-                    stroke-width="1.2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
             </div>
 
-            <button class="btn-login" type="submit">Login</button>
+            <button class="btn-login" type="submit">Create Account</button>
           </form>
 
           <p class="signup">
-            Don't have an account? <a href="${pageContext.request.contextPath}/register">Sign Up</a>
+            Already have an account? <a href="${pageContext.request.contextPath}/login">Log In</a>
           </p>
         </div>
       </section>
     </main>
 
-    <script src="${pageContext.request.contextPath}/assets/js/login.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/register.js"></script>
   </body>
 </html>

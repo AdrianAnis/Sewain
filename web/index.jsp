@@ -24,9 +24,7 @@
           <div class="nav-wrapper">
             <div class="logo">SewaIn</div>
             <div class="nav-auth">
-              <a href="pages/auth/login.jsp" class="btn-login"
-                >Login / Daftar</a
-              >
+              <a href="${pageContext.request.contextPath}/login" class="btn-login">Login / Daftar</a>
             </div>
           </div>
         </nav>
@@ -126,7 +124,7 @@
               Pilihan premium yang telah dikurasi untuk Anda.
             </p>
           </div>
-          <a href="pages/auth/login.jsp" class="btn-see-all">
+          <a href="${pageContext.request.contextPath}/login" class="btn-see-all">
             Lihat Semua
             <svg
               width="16"
@@ -525,14 +523,11 @@
               Temukan hunian impian Anda
             </p>
           </div>
-          <nav
-            class="footer-nav"
-            style="display: flex; gap: 18px; align-items: center"
-          >
-            <a href="pages/auth/login.jsp">Login</a>
-            <a href="pages/auth/login.jsp">Daftar</a>
-            <a href="pages/auth/login.jsp">Kontak</a>
-          </nav>
+          <nav class="footer-nav" style="display: flex; gap: 18px; align-items: center">
+            <a href="${pageContext.request.contextPath}/login">Login</a>
+            <a href="${pageContext.request.contextPath}/register">Daftar</a>
+            <a href="#">Kontak</a>
+        </nav>
         </div>
         <div class="footer-bottom" style="padding-top: 12px">
           <span style="color: var(--text-secondary); font-size: 13px">
