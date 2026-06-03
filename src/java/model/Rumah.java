@@ -8,6 +8,16 @@ package model;
  *
  * @author Lenovo
  */
-public class Rumah {
-    
+public class Rumah extends Property {
+
+    private int jumlahKamar;
+    private double luasTanah;
+
+    public int getJumlahKamar() {
+        return jumlahKamar;
+    }
+
+    public double getLuasTanah() {
+        return luasTanah;
+    }
 }

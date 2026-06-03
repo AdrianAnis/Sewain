@@ -7,7 +7,7 @@ package model;
 /**
  *
  * @author Lenovo
- */
+ */ 
 public abstract class User implements Reportable {
 
     protected int userId;

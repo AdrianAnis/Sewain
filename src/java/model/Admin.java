@@ -8,6 +8,25 @@ package model;
  *
  * @author Lenovo
  */
-public class Admin {
-    
+public class Admin extends User {
+
+    public void manageUser() {
+        System.out.println("Mengelola user");
+    }
+
+    public void verifyProperty() {
+        System.out.println("Memverifikasi property");
+    }
+
+    public void monitorActivity() {
+        System.out.println("Monitoring aktivitas");
+    }
+
+    public void handleReport() {
+        System.out.println("Menangani laporan");
+    }
+
+    public void flagProperty() {
+        System.out.println("Memberikan flag property");
+    }
 }

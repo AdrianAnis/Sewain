@@ -8,6 +8,16 @@ package model;
  *
  * @author Lenovo
  */
-public class Kost {
-    
+public class Kost extends Property {
+
+    private String gender;
+    private String roomType;
+
+    public String getGenderType() {
+        return gender;
+    }
+
+    public String getRoomType() {
+        return roomType;
+    }
 }

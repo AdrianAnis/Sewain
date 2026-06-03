@@ -8,6 +8,25 @@ package model;
  *
  * @author Lenovo
  */
-public class Owner {
-    
+public class Owner extends User {
+
+    public void searchProperty() {
+        System.out.println("Mencari property");
+    }
+
+    public void addToWishlist() {
+        System.out.println("Menambahkan ke wishlist");
+    }
+
+    public void viewProperty() {
+        System.out.println("Melihat property");
+    }
+
+    public void handleReport() {
+        System.out.println("Menangani laporan");
+    }
+
+    public void reportProperty() {
+        System.out.println("Melaporkan property");
+    }
 }
