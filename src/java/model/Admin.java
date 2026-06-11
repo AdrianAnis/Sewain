@@ -10,6 +10,14 @@ package model;
  */
 public class Admin extends User {
 
+    public Admin() {
+        super();
+    }
+
+    public Admin(String userId, String name, String email, String password, String phone, String role) {
+        super(userId, name, email, password, phone, role);
+    }
+
     public void manageUser() {
         System.out.println("Mengelola user");
     }

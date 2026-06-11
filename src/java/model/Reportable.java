@@ -11,4 +11,6 @@ package model;
 public interface Reportable {
     void report();
     String getReportStatus();
+    void createReport(Report report);
 }
+

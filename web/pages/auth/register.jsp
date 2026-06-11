@@ -10,9 +10,10 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/global.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/register.css?v=1.2" />
-  </head>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/global.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/auth/register.css?v=1.2" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
   <body>
     <a class="back-link" href="${pageContext.request.contextPath}/index.jsp">← Back to Home</a>
 
@@ -103,6 +104,6 @@
       </section>
     </main>
 
-    <script src="${pageContext.request.contextPath}/assets/js/register.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/auth/register.js"></script>
   </body>
 </html>

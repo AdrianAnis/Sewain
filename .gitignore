@@ -1,2 +1,4 @@
 /build/
 /dist/
+web/uploads/
+web/WEB-INF/cloudinary.properties

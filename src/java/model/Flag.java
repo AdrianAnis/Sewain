@@ -1,13 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
+
 import java.util.Date;
-/**
- *
- * @author Lenovo
- */
+
 public class Flag {
 
     private int flagId;
@@ -15,6 +9,50 @@ public class Flag {
     private String reason;
     private Date date;
 
+    // Constructors
+    public Flag() {}
+
+    public Flag(int flagId, Property property, String reason, Date date) {
+        this.flagId = flagId;
+        this.property = property;
+        this.reason = reason;
+        this.date = date;
+    }
+
+    // Getters and Setters
+    public int getFlagId() {
+        return flagId;
+    }
+
+    public void setFlagId(int flagId) {
+        this.flagId = flagId;
+    }
+
+    public Property getProperty() {
+        return property;
+    }
+
+    public void setProperty(Property property) {
+        this.property = property;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    // UML methods
     public void addFlag() {
         System.out.println("Flag ditambahkan");
     }

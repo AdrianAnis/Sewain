@@ -1,5 +1,55 @@
-<%-- Document : index Created on : Jun 1, 2026, 11:32:42 AM Author : Lenovo --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="DAO.PropertyDAO"%>
+<%@page import="model.Property"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%!
+    public String resolvePropertyImage(String photoStr, String contextPath) {
+        String defaultImg = contextPath + "/assets/images/default-property.jpg";
+        if (photoStr == null) return defaultImg;
+        String trimmed = photoStr.trim();
+        if (trimmed.isEmpty() || "null".equals(trimmed) || "[]".equals(trimmed)) return defaultImg;
+        
+        String[] parts = trimmed.split(",");
+        if (parts.length == 0) return defaultImg;
+        String photo = parts[0].trim();
+        if (photo.isEmpty() || "null".equals(photo)) return defaultImg;
+        
+        if (photo.startsWith("http://") || photo.startsWith("https://")) return photo;
+        if (photo.startsWith(contextPath + "/uploads/")) return photo;
+        if (photo.startsWith("/uploads/")) return contextPath + photo;
+        if (photo.startsWith("/")) return photo;
+        if (photo.startsWith("uploads/")) return contextPath + "/" + photo;
+        return contextPath + "/uploads/" + photo;
+    }
+    
+    public String formatPrice(double price) {
+        if (price >= 1000000) {
+            double priceJt = price / 1000000.0;
+            if (priceJt == (long) priceJt) {
+                return "Rp " + (long) priceJt + " jt/bln";
+            } else {
+                return "Rp " + priceJt + " jt/bln";
+            }
+        } else {
+            return "Rp " + (long) price + "/bln";
+        }
+    }
+%>
+<%
+    PropertyDAO propertyDAO = new PropertyDAO();
+    List<Property> landingProps = propertyDAO.getLandingProperties();
+    Property heroProperty = null;
+    List<Property> featuredProperties = new ArrayList<>();
+    
+    if (landingProps != null && !landingProps.isEmpty()) {
+        heroProperty = landingProps.get(0);
+        for (int i = 1; i < Math.min(landingProps.size(), 4); i++) {
+            featuredProperties.add(landingProps.get(i));
+        }
+    }
+    String ctxPath = request.getContextPath();
+%>
 <!DOCTYPE html>
 <html lang="id">
   <head>
@@ -11,23 +61,17 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/global.css" />
-    <link rel="stylesheet" href="assets/css/components.css" />
-    <link rel="stylesheet" href="assets/css/landing.css" />
+    <link rel="stylesheet" href="assets/css/shared/global.css" />
+    <link rel="stylesheet" href="assets/css/shared/components.css" />
+    <link rel="stylesheet" href="assets/css/landing/landing.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>SewaIn - Temukan Hunian Impian Anda</title>
   </head>
   <body>
     <!-- ===== HERO SECTION ===== -->
     <section class="hero">
       <div class="container">
-        <nav class="navbar">
-          <div class="nav-wrapper">
-            <div class="logo">SewaIn</div>
-            <div class="nav-auth">
-              <a href="${pageContext.request.contextPath}/login" class="btn-login">Login / Daftar</a>
-            </div>
-          </div>
-        </nav>
+        <jsp:include page="pages/components/navbar.jsp" />
 
         <div class="hero-content">
           <div class="hero-left">
@@ -46,18 +90,128 @@
           </div>
 
           <div class="hero-right">
-            <div class="property-card hero-card">
+            <% if (heroProperty != null) { %>
+            <div class="property-card hero-card" style="cursor: pointer;" onclick="window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+              <div class="property-img-wrapper hero-card-img-wrapper">
+                <img
+                  src="<%= resolvePropertyImage(heroProperty.getPhotos(), ctxPath) %>"
+                  alt="<%= heroProperty.getName() %>"
+                  onerror="this.src='<%= ctxPath %>/assets/images/default-property.jpg'"
+                />
+                <% if ("Approved".equalsIgnoreCase(heroProperty.getVerificationStatus())) { %>
+                <span class="badge-verified">
+                  <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </span>
+                <% } %>
+                <button class="property-wishlist" aria-label="Wishlist" onclick="event.stopPropagation(); window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </button>
+                <% if (heroProperty.isAvailability()) { %>
+                <div class="property-available">AVAILABLE NOW</div>
+                <% } %>
+              </div>
+
+              <div class="property-content hero-card-content">
+                <div class="property-top-row">
+                  <h3 class="property-name"><%= heroProperty.getName() %></h3>
+                  <span class="property-price"><%= formatPrice(heroProperty.getPrice()) %></span>
+                </div>
+                <p class="property-location">
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                  <%= heroProperty.getLocation() %>
+                </p>
+                <div class="property-meta" style="display: flex; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; font-size: 13.5px; font-weight: 500; color: var(--deep);">
+                  <%
+                    String pType = (heroProperty.getPropertyType() != null ? heroProperty.getPropertyType() : "").toLowerCase();
+                    if ("kost".equals(pType)) {
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-venus-mars"></i>
+                      <%= heroProperty.getGender() != null && !heroProperty.getGender().isEmpty() ? heroProperty.getGender() : "Campur" %>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-door-closed"></i>
+                      <%= heroProperty.getRoomType() != null && !heroProperty.getRoomType().isEmpty() ? heroProperty.getRoomType() : "Standard" %>
+                    </span>
+                  <%
+                    } else if ("rumah".equals(pType)) {
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-bed"></i>
+                      <%= heroProperty.getJumlahKamar() %> Kamar
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-maximize"></i>
+                      <%= (int) heroProperty.getLuasTanah() %> m²
+                    </span>
+                  <%
+                    } else if ("kontrakan".equals(pType)) {
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-bed"></i>
+                      <%= heroProperty.getJumlahKamar() %> Kamar
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-calendar-days"></i>
+                      Min. <%= heroProperty.getDurasiMinimum() %> Bln
+                    </span>
+                  <%
+                    } else { // apartement / apartemen
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-layer-group"></i>
+                      Lantai <%= heroProperty.getLantai() %>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-door-closed"></i>
+                      Unit <%= heroProperty.getNomorUnit() != null && !heroProperty.getNomorUnit().isEmpty() ? heroProperty.getNomorUnit() : "12B" %>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-shapes"></i>
+                      <%= heroProperty.getTipeUnit() != null && !heroProperty.getTipeUnit().isEmpty() ? heroProperty.getTipeUnit() : "Studio" %>
+                    </span>
+                  <%
+                    }
+                  %>
+                </div>
+              </div>
+            </div>
+            <% } else { %>
+            <!-- Fallback Static Hero Card -->
+            <div class="property-card hero-card" style="cursor: pointer;" onclick="window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
               <div class="property-img-wrapper hero-card-img-wrapper">
                 <img
                   src="assets/images/landing/hero-property.jpg"
                   alt="The Grand Residence"
                   onerror="this.style.visibility = 'hidden'"
                 />
-                <div class="property-tag verified">
-                  <img class="tag-icon" src="assets/images/icon/verif.png" alt="" />
-                  VERIFIED
-                </div>
-                <button class="property-wishlist" aria-label="Wishlist">
+                <span class="badge-verified">
+                  <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </span>
+                <button class="property-wishlist" aria-label="Wishlist" onclick="event.stopPropagation(); window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
                   <svg
                     width="18"
                     height="18"
@@ -77,7 +231,7 @@
               <div class="property-content hero-card-content">
                 <div class="property-top-row">
                   <h3 class="property-name">The Grand Residence</h3>
-                  <span class="property-price">Rp 15M</span>
+                  <span class="property-price">Rp 15jt/bln</span>
                 </div>
                 <p class="property-location">
                   <svg
@@ -95,22 +249,23 @@
                   </svg>
                   Jakarta Selatan
                 </p>
-                <div class="property-meta">
-                  <span>
-                    <img class="property-meta-icon" src="assets/images/icon/kamar.png" alt="" />
-                    3
+                <div class="property-meta" style="display: flex; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; font-size: 13.5px; font-weight: 500; color: var(--deep);">
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bed"></i>
+                    3 Kamar
                   </span>
-                  <span>
-                    <img class="property-meta-icon" src="assets/images/icon/kamarmandi.png" alt="" />
-                    2
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bath"></i>
+                    2 Mandi
                   </span>
-                  <span>
-                    <img class="property-meta-icon" src="assets/images/icon/luas.png" alt="" />
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-maximize"></i>
                     120m&sup2;
                   </span>
                 </div>
               </div>
             </div>
+            <% } %>
           </div>
         </div>
       </div>
@@ -140,203 +295,317 @@
         </div>
 
         <div class="property-grid">
-          <!-- Card 1 -->
-          <div class="property-card reveal-card">
-            <div class="property-img-wrapper">
-              <img
-                src="assets/images/landing/property1.jpg"
-                alt="The Senopati Suites"
-                onerror="this.style.visibility = 'hidden'"
-              />
-              <div class="property-tag verified">
-                <img class="tag-icon" src="assets/images/icon/verif.png" alt="" />
-                VERIFIED
+          <%
+            if (featuredProperties != null && !featuredProperties.isEmpty()) {
+              for (Property prop : featuredProperties) {
+          %>
+            <div class="property-card reveal-card" style="cursor: pointer;" onclick="window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+              <div class="property-img-wrapper">
+                <img
+                  src="<%= resolvePropertyImage(prop.getPhotos(), ctxPath) %>"
+                  alt="<%= prop.getName() %>"
+                  onerror="this.src='<%= ctxPath %>/assets/images/default-property.jpg'"
+                />
+                <% if ("Approved".equalsIgnoreCase(prop.getVerificationStatus())) { %>
+                <span class="badge-verified">
+                  <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </span>
+                <% } %>
+                <button class="property-wishlist" aria-label="Wishlist" onclick="event.stopPropagation(); window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </button>
+                <% if (prop.isAvailability()) { %>
+                <div class="property-available">AVAILABLE NOW</div>
+                <% } %>
               </div>
-              <button class="property-wishlist" aria-label="Wishlist">
-                <svg
-                  width="18"
-                  height="18"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                  />
-                </svg>
-              </button>
-              <div class="property-available">AVAILABLE NOW</div>
+              <div class="property-content">
+                <div class="property-top-row">
+                  <h3 class="property-name"><%= prop.getName() %></h3>
+                  <span class="property-price"><%= formatPrice(prop.getPrice()) %></span>
+                </div>
+                <p class="property-location">
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                  <%= prop.getLocation() %>
+                </p>
+                <div class="property-meta" style="display: flex; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; font-size: 13.5px; font-weight: 500; color: var(--deep);">
+                  <%
+                    String pType = (prop.getPropertyType() != null ? prop.getPropertyType() : "").toLowerCase();
+                    if ("kost".equals(pType)) {
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-venus-mars"></i>
+                      <%= prop.getGender() != null && !prop.getGender().isEmpty() ? prop.getGender() : "Campur" %>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-door-closed"></i>
+                      <%= prop.getRoomType() != null && !prop.getRoomType().isEmpty() ? prop.getRoomType() : "Standard" %>
+                    </span>
+                  <%
+                    } else if ("rumah".equals(pType)) {
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-bed"></i>
+                      <%= prop.getJumlahKamar() %> Kamar
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-maximize"></i>
+                      <%= (int) prop.getLuasTanah() %> m²
+                    </span>
+                  <%
+                    } else if ("kontrakan".equals(pType)) {
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-bed"></i>
+                      <%= prop.getJumlahKamar() %> Kamar
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-calendar-days"></i>
+                      Min. <%= prop.getDurasiMinimum() %> Bln
+                    </span>
+                  <%
+                    } else { // apartement / apartemen
+                  %>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-layer-group"></i>
+                      Lantai <%= prop.getLantai() %>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-door-closed"></i>
+                      Unit <%= prop.getNomorUnit() != null && !prop.getNomorUnit().isEmpty() ? prop.getNomorUnit() : "12B" %>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <i class="fa-solid fa-shapes"></i>
+                      <%= prop.getTipeUnit() != null && !prop.getTipeUnit().isEmpty() ? prop.getTipeUnit() : "Studio" %>
+                    </span>
+                  <%
+                    }
+                  %>
+                </div>
+              </div>
             </div>
-            <div class="property-content">
-              <div class="property-top-row">
-                <h3 class="property-name">The Senopati Suites</h3>
-                <span class="property-price">Rp 12M</span>
+          <%
+              }
+            } else {
+          %>
+            <!-- Fallback Static Cards if database is empty -->
+            <!-- Card 1 -->
+            <div class="property-card reveal-card" style="cursor: pointer;" onclick="window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+              <div class="property-img-wrapper">
+                <img
+                  src="assets/images/landing/property1.jpg"
+                  alt="The Senopati Suites"
+                  onerror="this.style.visibility = 'hidden'"
+                />
+                <span class="badge-verified">
+                  <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </span>
+                <button class="property-wishlist" aria-label="Wishlist" onclick="event.stopPropagation(); window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </button>
+                <div class="property-available">AVAILABLE NOW</div>
               </div>
-              <p class="property-location">
-                <svg
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-                  />
-                  <circle cx="12" cy="9" r="2.5" />
-                </svg>
-                Senopati, Jakarta Selatan
-              </p>
-              <div class="property-meta">
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/kamar.png" alt="" />
-                  2
-                </span>
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/kamarmandi.png" alt="" />
-                  2
-                </span>
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/luas.png" alt="" />
-                  85m&sup2;
-                </span>
+              <div class="property-content">
+                <div class="property-top-row">
+                  <h3 class="property-name">The Senopati Suites</h3>
+                  <span class="property-price">Rp 12jt/bln</span>
+                </div>
+                <p class="property-location">
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                  Senopati, Jakarta Selatan
+                </p>
+                <div class="property-meta" style="display: flex; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; font-size: 13.5px; font-weight: 500; color: var(--deep);">
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bed"></i>
+                    2 Kamar
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bath"></i>
+                    2 Mandi
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-maximize"></i>
+                    85m&sup2;
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Card 2 -->
-          <div class="property-card reveal-card">
-            <div class="property-img-wrapper">
-              <img
-                src="assets/images/landing/property2.jpg"
-                alt="Serenity Villa Kemang"
-                onerror="this.style.visibility = 'hidden'"
-              />
-              <div class="property-tag verified">
-                <img class="tag-icon" src="assets/images/icon/verif.png" alt="" />
-                VERIFIED
+            <!-- Card 2 -->
+            <div class="property-card reveal-card" style="cursor: pointer;" onclick="window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+              <div class="property-img-wrapper">
+                <img
+                  src="assets/images/landing/property2.jpg"
+                  alt="Serenity Villa Kemang"
+                  onerror="this.style.visibility = 'hidden'"
+                />
+                <span class="badge-verified">
+                  <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </span>
+                <button class="property-wishlist" aria-label="Wishlist" onclick="event.stopPropagation(); window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </button>
+                <div class="property-available">AVAILABLE NOW</div>
               </div>
-              <button class="property-wishlist" aria-label="Wishlist">
-                <svg
-                  width="18"
-                  height="18"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                  />
-                </svg>
-              </button>
-              <div class="property-available">AVAILABLE NOW</div>
+              <div class="property-content">
+                <div class="property-top-row">
+                  <h3 class="property-name">Serenity Villa Kemang</h3>
+                  <span class="property-price">Rp 12jt/bln</span>
+                </div>
+                <p class="property-location">
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                  Kemang, Jakarta Selatan
+                </p>
+                <div class="property-meta" style="display: flex; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; font-size: 13.5px; font-weight: 500; color: var(--deep);">
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bed"></i>
+                    2 Kamar
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bath"></i>
+                    2 Mandi
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-maximize"></i>
+                    85m&sup2;
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="property-content">
-              <div class="property-top-row">
-                <h3 class="property-name">Serenity Villa Kemang</h3>
-                <span class="property-price">Rp 12M</span>
-              </div>
-              <p class="property-location">
-                <svg
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-                  />
-                  <circle cx="12" cy="9" r="2.5" />
-                </svg>
-                Kemang, Jakarta Selatan
-              </p>
-              <div class="property-meta">
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/kamar.png" alt="" />
-                  2
-                </span>
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/kamarmandi.png" alt="" />
-                  2
-                </span>
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/luas.png" alt="" />
-                  85m&sup2;
-                </span>
-              </div>
-            </div>
-          </div>
 
-          <!-- Card 3 -->
-          <div class="property-card reveal-card">
-            <div class="property-img-wrapper">
-              <img
-                src="assets/images/landing/property3.jpg"
-                alt="Skyline Suites Sudirman"
-                onerror="this.style.visibility = 'hidden'"
-              />
-              <div class="property-tag verified">
-                <img class="tag-icon" src="assets/images/icon/verif.png" alt="" />
-                VERIFIED
+            <!-- Card 3 -->
+            <div class="property-card reveal-card" style="cursor: pointer;" onclick="window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+              <div class="property-img-wrapper">
+                <img
+                  src="assets/images/landing/property3.jpg"
+                  alt="Skyline Suites Sudirman"
+                  onerror="this.style.visibility = 'hidden'"
+                />
+                <span class="badge-verified">
+                  <i class="fa-solid fa-circle-check"></i> VERIFIED
+                </span>
+                <button class="property-wishlist" aria-label="Wishlist" onclick="event.stopPropagation(); window.location.href='<%= ctxPath %>/pages/auth/login.jsp'">
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </button>
+                <div class="property-available">AVAILABLE NOW</div>
               </div>
-              <button class="property-wishlist" aria-label="Wishlist">
-                <svg
-                  width="18"
-                  height="18"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                  />
-                </svg>
-              </button>
-              <div class="property-available">AVAILABLE NOW</div>
+              <div class="property-content">
+                <div class="property-top-row">
+                  <h3 class="property-name">Skyline Suites Sudirman</h3>
+                  <span class="property-price">Rp 12jt/bln</span>
+                </div>
+                <p class="property-location">
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                  Sudirman, Jakarta Selatan
+                </p>
+                <div class="property-meta" style="display: flex; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; font-size: 13.5px; font-weight: 500; color: var(--deep);">
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bed"></i>
+                    3 Kamar
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bath"></i>
+                    2 Mandi
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-maximize"></i>
+                    85m&sup2;
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="property-content">
-              <div class="property-top-row">
-                <h3 class="property-name">Skyline Suites Sudirman</h3>
-                <span class="property-price">Rp 12M</span>
-              </div>
-              <p class="property-location">
-                <svg
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-                  />
-                  <circle cx="12" cy="9" r="2.5" />
-                </svg>
-                Sudirman, Jakarta Selatan
-              </p>
-              <div class="property-meta">
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/kamar.png" alt="" />
-                  3
-                </span>
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/kamarmandi.png" alt="" />
-                  2
-                </span>
-                <span>
-                  <img class="property-meta-icon" src="assets/images/icon/luas.png" alt="" />
-                  85m&sup2;
-                </span>
-              </div>
-            </div>
-          </div>
+          <% } %>
         </div>
       </div>
     </section>
@@ -499,111 +768,9 @@
     </section>
 
     <!-- ===== FOOTER (SIMPLE) ===== -->
-    <footer class="footer">
-      <div class="container">
-        <div
-          class="footer-simple"
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            padding: 18px 0;
-          "
-        >
-          <div>
-            <h3 class="footer-logo">SewaIn</h3>
-            <p
-              style="
-                margin: 4px 0;
-                color: var(--text-secondary);
-                font-size: 13px;
-              "
-            >
-              Temukan hunian impian Anda
-            </p>
-          </div>
-          <nav class="footer-nav" style="display: flex; gap: 18px; align-items: center">
-            <a href="${pageContext.request.contextPath}/login">Login</a>
-            <a href="${pageContext.request.contextPath}/register">Daftar</a>
-            <a href="#">Kontak</a>
-        </nav>
-        </div>
-        <div class="footer-bottom" style="padding-top: 12px">
-          <span style="color: var(--text-secondary); font-size: 13px">
-            &copy; 2026 SewaIn. All rights reserved.
-          </span>
-        </div>
-      </div>
-    </footer>
+    <jsp:include page="pages/components/footer.jsp" />
 
     <!-- ===== JAVASCRIPT — Scroll Reveal & Interactions ===== -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // ── Intersection Observer for scroll reveal ──
-        var revealElements = document.querySelectorAll(".reveal-card, .reveal-header");
-
-        var revealObserver = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (entry) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("revealed");
-                revealObserver.unobserve(entry.target);
-              }
-            });
-          },
-          {
-            threshold: 0.15,
-            rootMargin: "0px 0px -40px 0px"
-          }
-        );
-
-        revealElements.forEach(function (el) {
-          revealObserver.observe(el);
-        });
-
-        // ── Wishlist toggle with heart animation ──
-        var wishlistBtns = document.querySelectorAll(".property-wishlist");
-        wishlistBtns.forEach(function (btn) {
-          btn.addEventListener("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.toggle("active");
-
-            // Pop animation
-            this.classList.add("pop");
-            var self = this;
-            setTimeout(function () {
-              self.classList.remove("pop");
-            }, 400);
-          });
-        });
-
-        // ── Parallax tilt effect on card hover ──
-        var cards = document.querySelectorAll(".property-grid .property-card");
-        cards.forEach(function (card) {
-          card.addEventListener("mousemove", function (e) {
-            var rect = card.getBoundingClientRect();
-            var x = e.clientX - rect.left;
-            var y = e.clientY - rect.top;
-            var centerX = rect.width / 2;
-            var centerY = rect.height / 2;
-            var rotateX = ((y - centerY) / centerY) * -3;
-            var rotateY = ((x - centerX) / centerX) * 3;
-
-            card.style.transform =
-              "translateY(-10px) perspective(800px) rotateX(" +
-              rotateX +
-              "deg) rotateY(" +
-              rotateY +
-              "deg)";
-          });
-
-          card.addEventListener("mouseleave", function () {
-            card.style.transform = "";
-          });
-        });
-      });
-    </script>
+    <script src="assets/js/landing/landing.js"></script>
   </body>
 </html>

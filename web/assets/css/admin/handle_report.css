@@ -1,0 +1,45 @@
+/* ISSUE TYPE BADGES */
+.issue-badge {
+    background-color: #FEF9E7;
+    color: #B7950B;
+    border: 1px solid #F9E79F;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+/* DESCRIPTION ELLIPSIS */
+.desc-cell {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* BUTTON VERIFICATIONS */
+.btn-resolve {
+    background-color: #E8F8F5;
+    color: #27AE60;
+}
+
+.btn-resolve:hover {
+    background-color: #D1F2EB;
+    color: #1E8449;
+}
+
+.btn-flag {
+    background-color: #FDEDEC;
+    color: #E74C3C;
+}
+
+.btn-flag:hover {
+    background-color: #FADBD8;
+    color: #922B21;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}

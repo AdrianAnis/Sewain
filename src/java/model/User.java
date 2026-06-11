@@ -7,55 +7,84 @@ package model;
 /**
  *
  * @author Lenovo
- */ 
+ */
 public abstract class User implements Reportable {
 
-    // Menggunakan protected agar bisa diturunkan langsung ke subclass (Tenant, Owner, Admin)
     protected String userId;
     protected String name;
     protected String email;
     protected String password;
     protected String phone;
     protected String role;
+    protected String status = "Active"; 
 
-    // Constructor Kosong
-    public User() {}
-
-    // Constructor untuk memudahkan pengisian data dari Database tanpa password
-    public User(String userId, String name, String email, String role) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.role = role;
+    public User() {
     }
 
-    // Constructor Lengkap dengan password
-    public User(String userId, String name, String email, String password, String role) {
+    public User(String userId, String name, String email, String password, String phone, String role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.phone = phone;
         this.role = role;
     }
 
-    // ===== ENCAPSULATION: GETTER & SETTER (Wajib ada untuk Best Practice) =====
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public String getUserId() {
+        return userId;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getName() {
+        return name;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public void login() {
         System.out.println(name + " berhasil login");
@@ -81,5 +110,31 @@ public abstract class User implements Reportable {
     @Override
     public String getReportStatus() {
         return "Pending";
+    }
+
+    @Override
+    public void createReport(Report report) {
+        System.out.println("Membuat laporan dari user ID: " + userId);
+    }
+
+    // Pulled up methods from subclasses to avoid redundancy
+    public void searchProperty() {
+        System.out.println("Mencari property");
+    }
+
+    public void addToWishlist() {
+        System.out.println("Menambahkan ke wishlist");
+    }
+
+    public void viewProperty() {
+        System.out.println("Melihat detail property");
+    }
+
+    public void handleReport() {
+        System.out.println("Menangani laporan");
+    }
+
+    public void reportProperty() {
+        System.out.println("Melaporkan property");
     }
 }
