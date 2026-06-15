@@ -38,7 +38,7 @@
     <!-- CSS Stylesheets -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/global.css?v=1.6" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/components.css?v=1.6" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/owner/dashboard_owner.css?v=1.6" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/owner/dashboard_owner.css?v=1.8" />
     
     <script>
         window.contextPath = "${pageContext.request.contextPath}";
@@ -122,6 +122,16 @@
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
+
+                                <c:if test="${prop.flagCount == 1}">
+                                  <span class="badge-flag badge-flag-1" style="position:absolute; top:12px; right:12px; z-index:10;">⚠ 1/3</span>
+                                </c:if>
+                                <c:if test="${prop.flagCount == 2}">
+                                  <span class="badge-flag badge-flag-2" style="position:absolute; top:12px; right:12px; z-index:10;">⚠ 2/3</span>
+                                </c:if>
+                                <c:if test="${prop.flagCount >= 3}">
+                                  <span class="badge-flag badge-flag-banned" style="position:absolute; top:12px; right:12px; z-index:10;">🔴 DIBLOKIR</span>
+                                </c:if>
                                 
                                 <c:if test="${prop.availability}">
                                     <div class="property-available">AVAILABLE NOW</div>
@@ -154,7 +164,25 @@
                                     <h3 class="property-name">${prop.name}</h3>
                                     <span class="property-price">Rp <fmt:formatNumber value="${prop.price}" type="number" groupingUsed="true" /></span>
                                 </div>
-                                <p class="property-location" style="display: flex; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 13px; margin: 0 0 16px 0;">
+                                <c:if test="${prop.flagCount == 1}">
+                                  <div class="flag-warning flag-1">
+                                    <span>⚠️ Peringatan 1/3 — Disembunyikan dari pencarian</span>
+                                    <span class="flag-reason">${prop.flagReason}</span>
+                                  </div>
+                                </c:if>
+                                <c:if test="${prop.flagCount == 2}">
+                                  <div class="flag-warning flag-2">
+                                    <span>⚠️ Peringatan 2/3 — Disembunyikan dari pencarian</span>
+                                    <span class="flag-reason">${prop.flagReason}</span>
+                                  </div>
+                                </c:if>
+                                <c:if test="${prop.flagCount >= 3}">
+                                  <div class="flag-warning flag-banned">
+                                    <span>🔴 Properti diblokir permanen</span>
+                                    <span class="flag-reason">${prop.flagReason}</span>
+                                  </div>
+                                </c:if>
+                                <p class="property-location" style="display: flex; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 13px; margin: 8px 0 16px 0;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                     ${prop.location}
                                 </p>
@@ -183,16 +211,18 @@
                                 
                                 <div class="property-footer-actions">
                                     <a href="${pageContext.request.contextPath}/owner/detail?propertyId=${prop.propertyId}" class="btn-view-details">View Details</a>
-                                    <a href="${pageContext.request.contextPath}/owner/edit?propertyId=${prop.propertyId}" class="btn-action-icon edit" title="Edit" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
-                                    <button type="button"
-                                            class="btn-action-icon delete"
-                                            title="Hapus"
-                                            onclick="openDashboardDeleteModal('${prop.propertyId}', '${prop.name}')"
-                                            style="display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; background: transparent;">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    <c:if test="${prop.flagCount < 3}">
+                                        <a href="${pageContext.request.contextPath}/owner/edit?propertyId=${prop.propertyId}" class="btn-action-icon edit" title="Edit" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn-action-icon delete"
+                                                title="Hapus"
+                                                onclick="openDashboardDeleteModal('${prop.propertyId}', '${prop.name}')"
+                                                style="display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; background: transparent;">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>

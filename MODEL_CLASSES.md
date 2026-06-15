@@ -1,6 +1,6 @@
 # 📁 DOKUMENTASI KELAS MODEL — SewaIn
 
-Dokumen ini berisi penjelasan terperinci mengenai seluruh kelas yang berada dalam package `model` (`src/java/model/`) pada aplikasi SewaIn. Model-model ini bertindak sebagai representasi data dan logika bisnis inti (Domain Objects) dalam arsitektur Model-View-Controller (MVC) aplikasi.
+Dokumen ini berisi penjelasan terperinci mengenai seluruh kelas yang berada dalam package `model` (`src/java/model/`) pada aplikasi SewaIn. Model-model ini bertindak sebagai representasi data dan logika bisnis inti (Objek Domain) dalam arsitektur Model-View-Controller (MVC) aplikasi.
 
 ---
 
@@ -24,7 +24,7 @@ classDiagram
         #email String
         #password String
         #phone String
-        #role String
+        #peran String
         #status String
         +login() void
         +logout() void
@@ -203,11 +203,11 @@ classDiagram
 
 ---
 
-## 👤 Hierarki Kelas Pengguna (User Hierarchy)
+## 👤 Hierarki Kelas Pengguna (Hierarki Pengguna)
 
-### 2. `User.java` (Abstract Class)
+### 2. `User.java` (Kelas Abstrak)
 * **Path:** `src/java/model/User.java`
-* **Tipe:** `Abstract Class` (mengimplementasikan `Reportable`)
+* **Tipe:** `Kelas Abstrak` (mengimplementasikan `Reportable`)
 * **Deskripsi:** Kelas induk abstrak yang memuat atribut dasar dan operasi bersama untuk semua jenis aktor sistem (Tenant, Owner, Admin).
 * **Atribut Terenkapsulasi (Protected):**
   * `userId` (`String`): ID unik pengguna.
@@ -215,16 +215,16 @@ classDiagram
   * `email` (`String`): Alamat email (digunakan untuk kredensial login).
   * `password` (`String`): Kata sandi terenkripsi.
   * `phone` (`String`): Nomor telepon aktif pengguna.
-  * `role` (`String`): Peran pengguna (`tenant`, `owner`, `admin`).
+  * `peran` (`String`): Peran pengguna (`tenant`, `owner`, `admin`).
   * `status` (`String`): Status aktif akun (`Active`, `Suspended`).
 * **Konstruktor:**
   * `User()`: Konstruktor default.
-  * `User(String userId, String name, String email, String password, String phone, String role)`: Konstruktor berparameter.
+  * `User(String userId, String name, String email, String password, String phone, String peran)`: Konstruktor berparameter.
 * **Metode Umum:**
   * Getter dan Setter untuk seluruh atribut.
   * `void login()` / `void logout()`: Simulasi proses login/logout.
   * `void getProfile()` / `void updateProfile()`: Manajemen profil dasar.
-  * **Metode Naik dari Subclass (Pull-Up Methods):** Untuk mencegah duplikasi kode di tingkat controller/JSP:
+  * **Metode Naik dari Subclass (Metode Tarik ke Atas):** Untuk mencegah duplikasi kode di tingkat controller/JSP:
     * `void searchProperty()`
     * `void addToWishlist()`
     * `void viewProperty()`
@@ -237,23 +237,23 @@ classDiagram
 
 ### 3. `Tenant.java` (Concrete Subclass)
 * **Path:** `src/java/model/Tenant.java`
-* **Tipe:** `Concrete Class` (turunan dari `User`)
+* **Tipe:** `Kelas Konkret` (turunan dari `User`)
 * **Deskripsi:** Merepresentasikan aktor penyewa properti. Memiliki akses ke fitur pencarian properti, manajemen wishlist, pemesanan, dan pembuatan laporan keluhan.
 * **Konstruktor:**
   * `Tenant()`: Memanggil `super()`.
-  * `Tenant(String userId, String name, String email, String password, String phone, String role)`: Memanggil konstruktor berparameter induk (`super`).
+  * `Tenant(String userId, String name, String email, String password, String phone, String peran)`: Memanggil konstruktor berparameter induk (`super`).
 
 ### 4. `Owner.java` (Concrete Subclass)
 * **Path:** `src/java/model/Owner.java`
-* **Tipe:** `Concrete Class` (turunan dari `User`)
+* **Tipe:** `Kelas Konkret` (turunan dari `User`)
 * **Deskripsi:** Merepresentasikan aktor pemilik properti sewa yang dapat memposting, memperbarui, dan menghapus data properti mereka sendiri.
 * **Konstruktor:**
   * `Owner()`: Memanggil `super()`.
-  * `Owner(String userId, String name, String email, String password, String phone, String role)`: Memanggil konstruktor berparameter induk (`super`).
+  * `Owner(String userId, String name, String email, String password, String phone, String peran)`: Memanggil konstruktor berparameter induk (`super`).
 
 ### 5. `Admin.java` (Concrete Subclass)
 * **Path:** `src/java/model/Admin.java`
-* **Tipe:** `Concrete Class` (turunan dari `User`)
+* **Tipe:** `Kelas Konkret` (turunan dari `User`)
 * **Deskripsi:** Merepresentasikan administrator platform dengan kontrol penuh atas moderasi sistem (manajemen pengguna, verifikasi properti baru, penanganan laporan, penandaan properti melanggar, dan monitoring log aktivitas).
 * **Metode Spesifik:**
   * `void manageUser()`: Operasi manajemen status suspensi pengguna.
@@ -264,13 +264,13 @@ classDiagram
 
 ---
 
-## 🏠 Hierarki Kelas Properti (Property Hierarchy)
+## 🏠 Hierarki Kelas Properti (Hierarki Properti)
 
-Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. Seluruh subclass `Property` dipetakan ke dalam satu tabel fisik `properties`.
+Sistem SewaIn menggunakan pola **Pewarisan Tabel Tunggal (STI)** di database. Seluruh subclass `Property` dipetakan ke dalam satu tabel fisik `properties`.
 
-### 6. `Property.java` (Abstract Class)
+### 6. `Property.java` (Kelas Abstrak)
 * **Path:** `src/java/model/Property.java`
-* **Tipe:** `Abstract Class` (mengimplementasikan `Reportable`)
+* **Tipe:** `Kelas Abstrak` (mengimplementasikan `Reportable`)
 * **Deskripsi:** Kelas induk abstrak yang memuat seluruh atribut dasar properti dan menyediakan implementasi pembentukan JSON polimorfik.
 * **Atribut Terenkapsulasi (Protected):**
   * `propertyId` (`int`): ID unik properti (Auto Increment di database).
@@ -290,7 +290,7 @@ Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. S
 * **Metode Utama & Polimorfisme:**
   * Getter dan Setter untuk seluruh atribut.
   * `void getDetail()` / `void updateStatus()`: Detail dasar dan update status.
-  * **Polymorphic Getter Fallbacks:** Getter kosong (misal `getGender()`, `getJumlahKamar()`, dsb.) disediakan di kelas induk agar controller/JSP dapat memanggil method ini secara polimorfis tanpa perlu melakukan pengecekan `instanceof` atau *casting* tipe data secara manual.
+  * **Metode Alternatif Getter Polimorfik:** Getter kosong (misal `getGender()`, `getJumlahKamar()`, dsb.) disediakan di kelas induk agar controller/JSP dapat memanggil method ini secara polimorfis tanpa perlu melakukan pengecekan `instanceof` atau *casting* tipe data secara manual.
   * `public abstract List<String> getSpecificDetails()`: Metode abstrak untuk menghasilkan representasi daftar spesifikasi khusus milik masing-masing subclass.
   * `public abstract String toJson()`: Metode abstrak untuk mengkonversi data objek properti (termasuk atribut subclass konkretnya) menjadi format JSON terstandarisasi.
   * `protected String buildBaseJson()`: Helper terenkapsulasi untuk menyusun representasi JSON dari atribut dasar `Property` agar dapat digunakan kembali oleh subclass.
@@ -298,7 +298,7 @@ Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. S
 
 ### 7. `Kost.java` (Concrete Subclass)
 * **Path:** `src/java/model/Kost.java`
-* **Tipe:** `Concrete Class` (turunan dari `Property`)
+* **Tipe:** `Kelas Konkret` (turunan dari `Property`)
 * **Deskripsi:** Properti sewa berupa kamar Kost.
 * **Atribut Spesifik (Private):**
   * `gender` (`String`): Jenis kost (`Pria`, `Wanita`, `Campur`).
@@ -309,7 +309,7 @@ Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. S
 
 ### 8. `Rumah.java` (Concrete Subclass)
 * **Path:** `src/java/model/Rumah.java`
-* **Tipe:** `Concrete Class` (turunan dari `Property`)
+* **Tipe:** `Kelas Konkret` (turunan dari `Property`)
 * **Deskripsi:** Properti sewa berupa Rumah utuh.
 * **Atribut Spesifik (Private):**
   * `jumlahKamar` (`int`): Kapasitas kamar tidur di dalam rumah.
@@ -320,7 +320,7 @@ Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. S
 
 ### 9. `Kontrakan.java` (Concrete Subclass)
 * **Path:** `src/java/model/Kontrakan.java`
-* **Tipe:** `Concrete Class` (turunan dari `Property`)
+* **Tipe:** `Kelas Konkret` (turunan dari `Property`)
 * **Deskripsi:** Properti sewa tipe Kontrakan rumah petak/petakan.
 * **Atribut Spesifik (Private):**
   * `durasiMinimum` (`int`): Batas sewa minimal dalam hitungan bulan.
@@ -331,7 +331,7 @@ Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. S
 
 ### 10. `Apartement.java` (Concrete Subclass)
 * **Path:** `src/java/model/Apartement.java`
-* **Tipe:** `Concrete Class` (turunan dari `Property`)
+* **Tipe:** `Kelas Konkret` (turunan dari `Property`)
 * **Deskripsi:** Properti sewa tipe unit Apartemen.
 * **Atribut Spesifik (Private):**
   * `lantai` (`int`): Nomor lantai unit apartemen berada.
@@ -418,14 +418,14 @@ Sistem SewaIn menggunakan pola **Single Table Inheritance (STI)** di database. S
 
 Model-model pada proyek SewaIn dirancang untuk menunjukkan implementasi dari empat pilar utama PBO:
 
-1. **Abstraction (Abstraksi)**
+1. **Abstraksi (Abstraction)**
    Kelas `User` and `Property` dinyatakan sebagai `abstract`. Objek ini tidak dapat diinstansiasi secara langsung (`new User()` atau `new Property()`). Keduanya hanya mendefinisikan rancangan struktur dasar dan perilaku yang harus dimiliki oleh kelas konkret di bawahnya.
-2. **Inheritance (Pewarisan)**
+2. **Pewarisan (Inheritance)**
    * Aktor-aktor sistem mewarisi status dan method dari `User` (`Tenant`, `Owner`, `Admin` extend `User`).
    * Tipe-tipe properti sewa mewarisi atribut dan metode `Property` (`Kost`, `Rumah`, `Kontrakan`, `Apartement` extend `Property`).
-3. **Polymorphism (Polimorfisme)**
-   * **Interface Polymorphism:** Baik `User` maupun `Property` mengimplementasikan interface `Reportable`. Dengan demikian, objek dari kelas apa pun dalam kedua hierarki tersebut dapat dikelola secara seragam melalui referensi bertipe data `Reportable`.
-   * **Method Overriding:** Setiap subclass properti mengoverride method `getSpecificDetails()` dan `toJson()` untuk memproses dan menyajikan data spesifik kelas mereka secara mandiri tanpa modifikasi di level pemanggil.
-   * **Polymorphic Getter Fallbacks:** Superclass `Property` mendefinisikan method default kosong seperti `getGender()`, `getJumlahKamar()`, dll. Hal ini menghilangkan kebutuhan kueri bersyarat menggunakan kata kunci `instanceof` dan operasi *casting type* manual di file JSP/Controller.
-4. **Encapsulation (Enkapsulasi)**
+3. **Polimorfisme (Polymorphism)**
+   * **Polimorfisme Antarmuka:** Baik `User` maupun `Property` mengimplementasikan interface `Reportable`. Dengan demikian, objek dari kelas apa pun dalam kedua hierarki tersebut dapat dikelola secara seragam melalui referensi bertipe data `Reportable`.
+   * **Penimpaan Metode:** Setiap subclass properti mengoverride method `getSpecificDetails()` dan `toJson()` untuk memproses dan menyajikan data spesifik kelas mereka secara mandiri tanpa modifikasi di level pemanggil.
+   * **Metode Alternatif Getter Polimorfik:** Superclass `Property` mendefinisikan method default kosong seperti `getGender()`, `getJumlahKamar()`, dll. Hal ini menghilangkan kebutuhan kueri bersyarat menggunakan kata kunci `instanceof` dan operasi *casting type* manual di file JSP/Controller.
+4. **Enkapsulasi (Encapsulation)**
    Semua variabel anggota/atribut pada kelas-kelas model diset menggunakan modifier akses `private` atau `protected`. Akses ke variabel-variabel ini dikontrol sepenuhnya secara aman melalui metode *Getter* dan *Setter* (aksesor dan mutator).

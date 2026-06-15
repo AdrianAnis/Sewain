@@ -1,47 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("search-input");
-    const roleFilter = document.getElementById("role-filter");
-    const statusFilter = document.getElementById("status-filter");
-
-    // Filter event listeners
-    if (searchInput) searchInput.addEventListener("input", filterUsers);
-    if (roleFilter) roleFilter.addEventListener("change", filterUsers);
-    if (statusFilter) statusFilter.addEventListener("change", filterUsers);
 
     // Initial counter update
     updateUserCount();
 });
 
-// 1. Client-Side Filtering
-function filterUsers() {
-    const searchVal = document.getElementById("search-input").value.toLowerCase().trim();
-    const roleVal = document.getElementById("role-filter").value.toLowerCase();
-    const statusVal = document.getElementById("status-filter").value.toLowerCase();
-    
-    const rows = document.querySelectorAll(".user-row");
-    let visibleCount = 0;
-
-    rows.forEach(row => {
-        const name = row.getAttribute("data-name").toLowerCase();
-        const email = row.getAttribute("data-email").toLowerCase();
-        const phone = row.getAttribute("data-phone").toLowerCase();
-        const role = row.getAttribute("data-role").toLowerCase();
-        const status = row.getAttribute("data-status").toLowerCase();
-
-        const matchesSearch = name.includes(searchVal) || email.includes(searchVal) || phone.includes(searchVal);
-        const matchesRole = (roleVal === "all") || (role === roleVal);
-        const matchesStatus = (statusVal === "all") || (status === statusVal);
-
-        if (matchesSearch && matchesRole && matchesStatus) {
-            row.style.display = "";
-            visibleCount++;
-        } else {
-            row.style.display = "none";
-        }
-    });
-
-    updateUserCount(visibleCount);
-}
 
 function updateUserCount(count = null) {
     const badge = document.getElementById("user-count-badge");
@@ -146,16 +108,16 @@ function executeToggleStatus() {
     .then(data => {
         hideLoaderSpinner();
         if (data.success) {
-            // Update table row in UI
             updateRowUI(activeActionUserId, activeActionStatus);
+            SewainAlert.success("Status pengguna berhasil diperbarui.");
         } else {
-            alert(data.message || "Gagal memperbarui status pengguna.");
+            SewainAlert.error(data.message || "Gagal memperbarui status pengguna.");
         }
     })
     .catch(error => {
         hideLoaderSpinner();
         console.error("Error toggling status:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 
@@ -187,8 +149,6 @@ function updateRowUI(userId, newStatus) {
         actionCell.innerHTML = detailBtnHtml + " " + toggleBtnHtml;
     }
 
-    // Recalculate filters in case they are active
-    filterUsers();
 }
 
 function showLoaderSpinner() {

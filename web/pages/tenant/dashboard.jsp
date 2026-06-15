@@ -197,6 +197,7 @@
                             </div>
 
                             <!-- JavaScript Bundle -->
+                            <script src="${pageContext.request.contextPath}/assets/js/shared/ui-alerts.js"></script>
                             <script src="${pageContext.request.contextPath}/assets/js/tenant/dashboard.js?v=1.5"></script>
             </body>
 

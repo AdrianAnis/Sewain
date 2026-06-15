@@ -1,4 +1,4 @@
-# 🏗️ PROJECT ARCHITECTURE — SewaIn
+# 🏗️ ARSITEKTUR PROYEK — SewaIn
 
 > **Dokumentasi Teknis Arsitektur Aplikasi Web SewaIn**
 > Platform pencarian & manajemen properti sewa (Kost, Rumah, Kontrakan, Apartemen).
@@ -6,7 +6,7 @@
 > 
 > **Dokumentasi Tambahan Pendamping:**
 > * 👉 **[MODEL_CLASSES.md](MODEL_CLASSES.md)**: Analisis rinci UML, warisan, & deskripsi 15 kelas model di package `model`.
-> * 👉 **[FILE_RELATIONSHIP.md](FILE_RELATIONSHIP.md)**: Analisis hubungan antar berkas, pemetaan alur fitur per role, audit kode mati, & evaluasi kesehatan OOP.
+> * 👉 **[FILE_RELATIONSHIP.md](FILE_RELATIONSHIP.md)**: Analisis hubungan antar berkas, pemetaan alur fitur per peran, audit kode mati, & evaluasi kesehatan OOP.
 
 ---
 
@@ -15,14 +15,14 @@
 1. [Konsep Dasar & Polimorfisme (STI)](#1-konsep-dasar--polimorfisme-single-table-inheritance)
 2. [Mekanisme Manajemen Image & Cloudinary](#2-mekanisme-manajemen-image--cloudinary)
 3. [Manajemen Database untuk Replikasi Tim](#3-manajemen-database-untuk-replikasi-tim-cloning)
-4. [Refactoring, Cleanups, & Fitur Dashboard Owner](#4-refactoring-cleanups--fitur-dashboard-owner)
-5. [Modul & Fitur Admin (Management, Verification, Flagging, Reports, Activity Logs)](#5-modul--fitur-admin-management-verification-flagging-reports-activity-logs)
+4. [Pemfaktoran Ulang, Pembersihan, & Fitur Dasbor Pemilik](#4-refactoring-cleanups--fitur-dashboard-owner)
+5. [Modul & Fitur Admin (Manajemen, Verifikasi, Penandaan, Laporan, Log Aktivitas)](#5-modul--fitur-admin-management-verification-flagging-reports-activity-logs)
 6. [Temuan Analisis & Rekomendasi Perbaikan](#6-temuan-analisis--rekomendasi-perbaikan)
-7. [Hasil Refactoring & Pembenahan Kode (Juni 2026)](#7-hasil-refactoring--pembenahan-kode-juni-2026)
+7. [Hasil Pemfaktoran Ulang & Pembenahan Kode (Juni 2026)](#7-hasil-refactoring--pembenahan-kode-juni-2026)
 
 ---
 
-## 1. Konsep Dasar & Polimorfisme (Single Table Inheritance)
+## 1. Konsep Dasar & Polimorfisme (Pewarisan Tabel Tunggal)
 
 ### 1.1 Hierarki Kelas dalam Kode Java
 
@@ -43,7 +43,7 @@ Project SewaIn menerapkan **4 pilar OOP** secara penuh: Abstraction, Encapsulati
 │       <<abstract>> User                      │
 │  ─────────────────────────────────────────── │
 │  # userId: String                            │
-│  # name, email, password, phone, role        │
+│  # name, email, password, phone, peran        │
 │  ─────────────────────────────────────────── │
 │  + login(), logout(), getProfile()           │
 │  + updateProfile()                           │
@@ -64,7 +64,7 @@ Project SewaIn menerapkan **4 pilar OOP** secara penuh: Abstraction, Encapsulati
 - `User` adalah kelas **abstrak** yang tidak bisa diinstansiasi langsung. Ia mengimplementasi interface `Reportable`.
 - `Tenant`, `Owner`, dan `Admin` adalah kelas **konkret** yang mewarisi seluruh atribut dan method dari `User`.
 - Subclass memiliki method yang berbeda sesuai perannya (contoh: `Tenant` bisa `reportProp()`, `Owner` bisa `handleReport()`, dan `Admin` bisa mengelola user, memverifikasi properti, menangani laporan, serta memonitor aktivitas).
-- Di database, semua tipe disimpan dalam **satu tabel `users`** dengan kolom `role` sebagai pembeda (`'tenant'`, `'owner'`, atau `'admin'`).
+- Di database, semua tipe disimpan dalam **satu tabel `users`** dengan kolom `peran` sebagai pembeda (`'tenant'`, `'owner'`, atau `'admin'`).
 
 **Referensi kode:**
 - `src/java/model/User.java` — Kelas abstrak induk
@@ -113,7 +113,7 @@ Project SewaIn menerapkan **4 pilar OOP** secara penuh: Abstraction, Encapsulati
 | `Kontrakan`   | `durasiMinimum` (int), `jumlahKamar` (int)      |
 | `Apartement`  | `lantai` (int), `nomorUnit` (String), `tipeUnit` |
 
-### 1.2 Implementasi STI (Single Table Inheritance)
+### 1.2 Implementasi STI (Pewarisan Tabel Tunggal)
 
 **Prinsip:** Seluruh subclass `Property` dipetakan ke **satu tabel database tunggal** bernama `properties`. Kolom `propertyType` berfungsi sebagai **discriminator** yang menentukan tipe konkret dari setiap baris data.
 
@@ -478,7 +478,7 @@ private static final String PASSWORD = "laragon_password";
 2. **Run:** Tekan `F6` atau klik tombol ▶️
 3. Buka browser → `http://localhost:8080/Sewain/`
 
-### 3.4 Checklist Troubleshooting
+### 3.4 Daftar Periksa Pemecahan Masalah
 
 | Masalah | Penyebab | Solusi |
 |---------|----------|--------|
@@ -489,11 +489,11 @@ private static final String PASSWORD = "laragon_password";
 
 ---
 
-## 4. Refactoring, Cleanups, & Fitur Dashboard Owner
+## 4. Pemfaktoran Ulang, Pembersihan, & Fitur Dasbor Pemilik
 
 Berikut adalah peningkatan kualitas kode (refactoring) dan fitur baru yang telah diimplementasikan:
 
-### 4.1 Pemisahan CSS & JS (Separation of Concerns)
+### 4.1 Pemisahan CSS & JS (Pemisahan Tanggung Jawab)
 JSP dibersihkan dari tag `<style>` inline dan blok `<script>` javascript. Kode visual dipisahkan ke dalam folder asset agar mudah di-*cache* oleh browser dan mudah dimaintain.
 - **CSS Baru:** `web/assets/css/detail_owner.css`, `web/assets/css/dashboard_owner.css`
 - **JS Baru:** `web/assets/js/detail_owner.js`, `web/assets/js/dashboard_owner.js`
@@ -504,7 +504,7 @@ JSP dibersihkan dari tag `<style>` inline dan blok `<script>` javascript. Kode v
 ### 4.2 Edit Properti Tanpa Stepper (1-Page Scroll Form)
 Halaman `edit_property.jsp` diubah dari 3-tahap (stepper wizard) menjadi satu halaman scroll biasa. Seluruh field di-render langsung untuk memudahkan owner mengedit data dengan cepat tanpa harus klik tombol Next/Back berulang kali, dengan visual modern yang konsisten.
 
-### 4.3 Modal Konfirmasi Hapus di Dashboard Owner
+### 4.3 Modal Konfirmasi Hapus di Dasbor Pemilik
 Sebelumnya, menekan ikon sampah (delete) pada card properti langsung me-redirect owner ke detail page. Sekarang, aksi delete menggunakan modal konfirmasi custom berbasis AJAX/POST di halaman dashboard owner langsung (`dashboard_owner.jsp`), menghemat loading time dan mencegah aksi hapus yang tidak disengaja.
 
 ### 4.4 Redesain Halaman Laporan (Report Page)
@@ -516,7 +516,7 @@ Halaman laporan properti owner (`report_owner.jsp`) didesain ulang agar identik 
 
 ---
 
-## 5. Modul & Fitur Admin (Management, Verification, Flagging, Reports, Activity Logs)
+## 5. Modul & Fitur Admin (Manajemen, Verifikasi, Penandaan, Laporan, Log Aktivitas)
 
 Modul Admin yang terintegrasi penuh dibangun untuk memberikan kontrol menyeluruh atas platform SewaIn, dengan antarmuka modern bernuansa sage premium dan interaksi real-time tanpa refresh halaman (AJAX).
 
@@ -531,7 +531,7 @@ Modul Admin yang terintegrasi penuh dibangun untuk memberikan kontrol menyeluruh
 3. **Flag & Moderasi Properti (`handleReport`)**:
    - Menandai (*Flag*) properti yang terindikasi melanggar aturan platform (misal: spam, scam, harga tidak wajar).
    - Menghapus properti bermasalah secara permanen dengan validasi data relasional (cascade delete).
-4. **Monitor Activity Log (`monitorActivity`)**:
+4. **Monitor Log Aktivitas (`monitorActivity`)**:
    - Mencatat setiap tindakan krusial admin (misalnya: suspensi user, verifikasi properti, pemberian bendera/flag, dan penghapusan properti) secara kronologis ke dalam tabel `activity_logs`.
    - Menampilkan log aktivitas yang rapi dengan pencarian dinamis (real-time filtering).
 
@@ -585,7 +585,7 @@ Sewain/
 ├── src/java/
 │   ├── config/
 │   │   └── AppConfig.java        # Reader properti cloudinary
-│   ├── model/                    # Domain Objects (OOP)
+│   ├── model/                    # Objek Domain (OOP)
 │   │   ├── User.java             # Abstract base class
 │   │   ├── Tenant.java           # Subclass penyewa
 │   │   ├── Owner.java            # Subclass pemilik
@@ -617,7 +617,7 @@ Sewain/
 │   │   │   ├── LoginController.java
 │   │   │   ├── LogoutController.java
 │   │   │   ├── RegisterController.java
-│   │   │   ├── SwitchRoleController.java
+│   │   │   ├── SwitchPeranController.java
 │   │   │   ├── UpdateProfileController.java
 │   │   │   └── UpgradeController.java
 │   │   ├── owner/                # Controller peran owner
@@ -648,7 +648,7 @@ Sewain/
 │   │   └── web.xml               # Web deployment descriptor
 │   ├── index.jsp                 # Landing page utama
 │   ├── assets/
-│   │   ├── css/                  # Stylesheets terpisah per role/modul
+│   │   ├── css/                  # Stylesheets terpisah per peran/modul
 │   │   │   ├── admin/
 │   │   │   │   ├── activity_log.css
 │   │   │   │   ├── admin.css
@@ -760,7 +760,7 @@ Sewain/
 | 1  | `web/pages/owner/edit_property.jsp` | Polymorphism / Open-Closed Principle | Scriptlet JSP menggunakan blok `instanceof` secara berantai (Kost, Rumah, Kontrakan, Apartement) untuk merender elemen input spesifik subclass. | Pindahkan logika penentuan form input ke dynamic client-side JS (`edit_property.js`) atau buat partial JSP pages per subtype properti and include secara dinamis. |
 | 2  | `web/pages/owner/detail_owner.jsp` | Polymorphism / Encapsulation | JSP melakukan casting manual dengan pengecekan `instanceof` berantai untuk memproses data subclass (seperti `gender`, `luasTanah`, dll.) sebelum dikonversi ke format JSON. | Tambahkan polymorphic method (contoh `getDetailsList()`) di superclass `Property` agar detail spesifik subclass tersembunyikan dan diakses secara polimorfik. |
 | 3  | `src/java/controller/tenant/DashboardTenantController.java` | Abstraction & Polymorphism | Method `convertToJson` menggunakan pengecekan `instanceof` berantai secara manual untuk menambahkan atribut spesifik subclass ke JSON response. | Delegasikan serialization ke tingkat model (`Property.toJson()`), atau gunakan library parser JSON seperti Gson/Jackson dengan custom serializer polimorfik. |
-| 4  | `src/java/DAO/PropertyDAO.java` | Polymorphism / Single Table Inheritance | Query mapping di layer DAO memisahkan attribute subclass dengan block `instanceof` berantai yang panjang untuk SQL `INSERT`/`UPDATE` manual. | Gunakan framework ORM (seperti Hibernate/JPA) dengan anotasi `@Inheritance(strategy=InheritanceType.SINGLE_TABLE)` guna menangani polymorphism database secara otomatis. |
+| 4  | `src/java/DAO/PropertyDAO.java` | Polymorphism / Pewarisan Tabel Tunggal | Query mapping di layer DAO memisahkan attribute subclass dengan block `instanceof` berantai yang panjang untuk SQL `INSERT`/`UPDATE` manual. | Gunakan framework ORM (seperti Hibernate/JPA) dengan anotasi `@Inheritance(strategy=InheritanceType.SINGLE_TABLE)` guna menangani polymorphism database secara otomatis. |
 
 ### 6.4 Inkonsistensi Penamaan & Duplikasi Kode
 | No | Lokasi Kode | Bentuk Inkonsistensi / Duplikasi | Rekomendasi Standardisasi |
@@ -799,15 +799,15 @@ File-file utama yang memiliki prioritas tinggi untuk segera disinkronkan ikonnya
 
 ---
 
-## 7. Hasil Refactoring & Pembenahan Kode (Juni 2026)
+## 7. Hasil Pemfaktoran Ulang & Pembenahan Kode (Juni 2026)
 
 Berdasarkan temuan technical debt di atas, pembenahan total telah berhasil dilaksanakan dengan rincian berikut:
 
 ### 7.1 Hasil Perbaikan MVC & Re-Routing (Prioritas Kritis)
 - **UpdateProfileController & UserDAOImpl**: Logika kueri SQL mentah (`UPDATE users SET name = ?, phone = ? WHERE userId = ?`) dan pengelolaan objek `Connection` / `PreparedStatement` telah berhasil didelegasikan sepenuhnya ke kelas `UserDAOImpl.java` melalui metode baru `public boolean updateProfile(User user)`. Kelas servlet controller kini murni mengatur alur request/response.
-- **Hapus Instansiasi DAO Langsung di JSP**: Pola bypass routing (`new DAO.PropertyDAOImpl()`) di halaman JSP Admin (`verify_property.jsp`, `manage_user.jsp`, `handle_report.jsp`, `flag_property.jsp`, `dashboard_admin.jsp`, `activity_log.jsp`) dan Dashboard Owner (`dashboard_owner.jsp`) telah dihapus secara menyeluruh. Pengambilan data sekarang sepenuhnya melewati Controller Servlet yang relevan, yang menyuplai data ke model request attributes sebelum diteruskan ke JSP.
+- **Hapus Instansiasi DAO Langsung di JSP**: Pola bypass routing (`new DAO.PropertyDAOImpl()`) di halaman JSP Admin (`verify_property.jsp`, `manage_user.jsp`, `handle_report.jsp`, `flag_property.jsp`, `dashboard_admin.jsp`, `activity_log.jsp`) dan Dasbor Pemilik (`dashboard_owner.jsp`) telah dihapus secara menyeluruh. Pengambilan data sekarang sepenuhnya melewati Controller Servlet yang relevan, yang menyuplai data ke model request attributes sebelum diteruskan ke JSP.
 - **Pembersihan instanceof Berantai di detail.jsp**: Logika `instanceof` berantai yang digunakan untuk membedakan detail visual antar tipe properti di `web/pages/tenant/detail.jsp` telah dihapus. Semua digantikan oleh metode polimorfik `getDetailsList()` pada kelas abstrak `Property` yang secara elegan diimplementasikan secara spesifik di masing-masing subclass (`Kost`, `Rumah`, `Kontrakan`, `Apartement`).
-- **Fitur Switch Role (SwitchRoleController)**: Implementasi servlet `SwitchRoleController` untuk memproses perpindahan peran aktif pengguna secara dinamis (Tenant <-> Owner) dalam sesi. Servlet ini melakukan *redirect* langsung ke controller resmi (`/owner/dashboard` dan `/landing`) alih-alih file JSP fisik, guna menjaga kepatuhan arsitektur MVC dan memuat data properti dengan benar. Halaman navigasi `navbar.jsp` juga direfaktor untuk merujuk ke `/switch-role` secara dinamis menggunakan parameter `roleSession` guna mengatasi bug navigasi peran.
+- **Fitur Switch Peran (SwitchPeranController)**: Implementasi servlet `SwitchPeranController` untuk memproses perpindahan peran aktif pengguna secara dinamis (Tenant <-> Owner) dalam sesi. Servlet ini melakukan *redirect* langsung ke controller resmi (`/owner/dashboard` dan `/landing`) alih-alih file JSP fisik, guna menjaga kepatuhan arsitektur MVC dan memuat data properti dengan benar. Halaman navigasi `navbar.jsp` juga direfaktor untuk merujuk ke `/switch-peran` secara dinamis menggunakan parameter `roleSession` guna mengatasi bug navigasi peran.
 
 ### 7.2 Perbaikan Enkapsulasi OOP & Hierarki Model (Prioritas Sedang)
 - **Enkapsulasi Kelas Model**: Variabel anggota pada kelas `Flag`, `Verification`, dan `Wishlist` yang sebelumnya bersifat publik atau tidak terproteksi dengan baik kini telah diprivatisasi dengan getter dan setter standar (POJO encapsulation).

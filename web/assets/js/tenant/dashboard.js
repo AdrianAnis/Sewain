@@ -59,16 +59,18 @@ document.addEventListener("DOMContentLoaded", function () {
         
         if (response.ok) {
           // If the backend redirects or returns OK:
-          alert("Selamat! Anda berhasil beralih ke mode Owner.");
+          SewainAlert.success("Selamat! Anda berhasil beralih ke mode Owner.").then(() => {
+            window.location.reload();
+          });
           window.location.href = ctx + "/pages/owner/dashboard_owner.jsp";
         } else {
-          alert("Gagal melakukan upgrade.");
+          SewainAlert.error(data.message || "Gagal melakukan upgrade.");
           this.textContent = originalText;
           this.disabled = false;
         }
       } catch (error) {
         console.error("Upgrade error:", error);
-        alert("Terjadi kesalahan jaringan.");
+        SewainAlert.error("Terjadi kesalahan jaringan.");
         this.textContent = originalText;
         this.disabled = false;
       }

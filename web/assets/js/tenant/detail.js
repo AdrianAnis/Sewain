@@ -36,7 +36,7 @@
                                                             })
                                                             .then(data => {
                                                                 if (data.status === "success") {
-                                                                    alert(data.message);
+                                                                    SewainAlert.success(data.message);
                                                                     closeReportModal();
                                                                     form.reset();
                                                                     // Reset custom dropdown state
@@ -53,12 +53,12 @@
                                                                         }
                                                                     }
                                                                 } else {
-                                                                    alert("Error: " + data.message);
+                                                                    SewainAlert.error("Error: " + data.message);
                                                                 }
                                                             })
                                                             .catch(error => {
                                                                 console.error("Error submitting report:", error);
-                                                                alert("Terjadi kesalahan saat mengirim laporan penipuan.");
+                                                                SewainAlert.error("Terjadi kesalahan saat mengirim laporan penipuan.");
                                                             });
                                                     };
 
@@ -487,7 +487,7 @@
                                                     '            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; font-weight: 500;">Minimum rent: 6 Months</div>' +
                                                     '        </div>' +
                                                     '' +
-                                                    '        <form class="booking-form" onsubmit="event.preventDefault(); alert(\'Mengajukan pesan sewa kepada pemilik...\');" style="gap: 12px;">' +
+                                                    '        <form class="booking-form" onsubmit="event.preventDefault(); SewainAlert.alert(\'Mengajukan pesan sewa kepada pemilik...\');" style="gap: 12px;">' +
                                                     '            <button type="submit" class="booking-btn" style="background: #475d58; box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; padding: 12px;">' +
                                                     '                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
                                                     '                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>' +

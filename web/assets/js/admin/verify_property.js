@@ -17,8 +17,8 @@ function resolveCardImages() {
 }
 
 // 2. Approve Property Action via AJAX POST
-function approveProperty(propertyId) {
-    if (!confirm("Apakah Anda yakin ingin menyetujui iklan properti ini?")) return;
+async function approveProperty(propertyId) {
+    if (!(await SewainAlert.confirm("Apakah Anda yakin ingin menyetujui iklan properti ini?"))) return;
 
     showSpinner();
 
@@ -38,14 +38,15 @@ function approveProperty(propertyId) {
         hideSpinner();
         if (data.success) {
             removeCardFromUI(propertyId);
+            SewainAlert.success("Properti berhasil disetujui!");
         } else {
-            alert(data.message || "Gagal menyetujui properti.");
+            SewainAlert.error(data.message || "Gagal menyetujui properti.");
         }
     })
     .catch(error => {
         hideSpinner();
         console.error("Error approving property:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 
@@ -86,14 +87,15 @@ function executeReject(event) {
         hideSpinner();
         if (data.success) {
             removeCardFromUI(propertyId);
+            SewainAlert.success("Properti berhasil ditolak.");
         } else {
-            alert(data.message || "Gagal menolak properti.");
+            SewainAlert.error(data.message || "Gagal menolak properti.");
         }
     })
     .catch(error => {
         hideSpinner();
         console.error("Error rejecting property:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 
@@ -128,9 +130,9 @@ function updatePendingCounter() {
     if (remainingCards === 0) {
         container.innerHTML = `
             <div class="no-pending-state">
-                <i class="fa-solid fa-circle-check success-icon"></i>
-                <h3>Semua Bersih!</h3>
-                <p>Tidak ada pengajuan properti baru yang menunggu verifikasi saat ini.</p>
+                <i class="fa-solid fa-shield-check success-icon" style="font-size: 4.5rem; margin-bottom: 12px; background: -webkit-linear-gradient(135deg, #0f766e, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                <h3 style="font-size: 1.75rem; font-weight: 800; color: #0f172a; margin: 0;">Antrean Bersih!</h3>
+                <p style="color: #64748b; font-size: 1.05rem; margin-top: 8px;">Semua pengajuan properti telah selesai ditinjau.</p>
             </div>
         `;
     }

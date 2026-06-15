@@ -36,7 +36,7 @@
         <!-- CSS Stylesheets -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/global.css?v=1.6" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/components.css?v=1.6" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/owner/dashboard_owner.css?v=1.6" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/owner/dashboard_owner.css?v=1.8" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/owner/detail_owner.css?v=1.6" />
 
         <!-- JavaScript Utils and Shared Logic -->

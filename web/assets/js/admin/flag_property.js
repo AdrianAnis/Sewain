@@ -1,8 +1,8 @@
 let activeDeletePropertyId = null;
 
 // 1. Unflag Property via AJAX
-function unflagProperty(propertyId) {
-    if (!confirm("Apakah Anda yakin ingin mencabut status flag pada properti ini? Iklan akan kembali aktif.")) return;
+async function unflagProperty(propertyId) {
+    if (!(await SewainAlert.confirm("Apakah Anda yakin ingin mencabut status flag pada properti ini? Iklan akan kembali aktif."))) return;
 
     showLoader();
 
@@ -22,14 +22,15 @@ function unflagProperty(propertyId) {
         hideLoader();
         if (data.success) {
             removeRowFromUI(propertyId);
+            SewainAlert.success("Status flag berhasil dicabut. Properti kembali aktif.");
         } else {
-            alert(data.message || "Gagal mencabut status flag.");
+            SewainAlert.error(data.message || "Gagal mencabut status flag.");
         }
     })
     .catch(error => {
         hideLoader();
         console.error("Error unflagging property:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 
@@ -73,14 +74,15 @@ function executeDeletePermanent() {
         hideLoader();
         if (data.success) {
             removeRowFromUI(activeDeletePropertyId);
+            SewainAlert.success("Properti berhasil dihapus secara permanen.");
         } else {
-            alert(data.message || "Gagal menghapus properti secara permanen.");
+            SewainAlert.error(data.message || "Gagal menghapus properti secara permanen.");
         }
     })
     .catch(error => {
         hideLoader();
         console.error("Error deleting property permanently:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 

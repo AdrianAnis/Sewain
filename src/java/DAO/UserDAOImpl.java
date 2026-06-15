@@ -64,7 +64,7 @@ public class UserDAOImpl implements UserDAO {
             
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
-            stmt.setString(3, user.getPassword());
+            stmt.setString(3, util.PasswordUtil.hashPassword(user.getPassword()));
             stmt.setString(4, user.getPhone());
             stmt.setString(5, user.getRole().toLowerCase());
             stmt.setString(6, user.getStatus() != null ? user.getStatus() : "Active");
@@ -85,34 +85,48 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public User loginUser(String emailOrUsername, String password) {
-        String sql = "SELECT * FROM users WHERE (email = ? OR name = ?) AND password = ?";
+        String sql = "SELECT * FROM users WHERE (email = ? OR name = ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, emailOrUsername);
             stmt.setString(2, emailOrUsername);
-            stmt.setString(3, password);
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    String role = rs.getString("role");
-                    String userId = String.valueOf(rs.getInt("userId"));
-                    String name = rs.getString("name");
-                    String email = rs.getString("email");
                     String pass = rs.getString("password");
-                    String status = rs.getString("status");
-                    String phone = rs.getString("phone");
                     
-                    User user;
-                    if ("admin".equalsIgnoreCase(role)) {
-                        user = new Admin(userId, name, email, pass, phone, role);
-                    } else if ("owner".equalsIgnoreCase(role)) {
-                        user = new Owner(userId, name, email, pass, phone, role);
-                    } else {
-                        user = new Tenant(userId, name, email, pass, phone, role);
+                    if (util.PasswordUtil.checkPassword(password, pass)) {
+                        // Otomatis upgrade plain-text password ke hash yang aman saat login
+                        if (pass != null && !pass.contains(":")) {
+                            String newHash = util.PasswordUtil.hashPassword(password);
+                            String updateSql = "UPDATE users SET password = ? WHERE userId = ?";
+                            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                                updateStmt.setString(1, newHash);
+                                updateStmt.setInt(2, rs.getInt("userId"));
+                                updateStmt.executeUpdate();
+                            }
+                            pass = newHash; // Update in memory object
+                        }
+
+                        String role = rs.getString("role");
+                        String userId = String.valueOf(rs.getInt("userId"));
+                        String name = rs.getString("name");
+                        String email = rs.getString("email");
+                        String status = rs.getString("status");
+                        String phone = rs.getString("phone");
+                        
+                        User user;
+                        if ("admin".equalsIgnoreCase(role)) {
+                            user = new Admin(userId, name, email, pass, phone, role);
+                        } else if ("owner".equalsIgnoreCase(role)) {
+                            user = new Owner(userId, name, email, pass, phone, role);
+                        } else {
+                            user = new Tenant(userId, name, email, pass, phone, role);
+                        }
+                        user.setStatus(status);
+                        return user;
                     }
-                    user.setStatus(status);
-                    return user;
                 }
             }
         } catch (SQLException e) {

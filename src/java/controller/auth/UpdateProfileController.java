@@ -53,6 +53,7 @@ public class UpdateProfileController extends HttpServlet {
                 out.print("{\"success\":false,\"message\":\"Nama tidak boleh kosong.\"}");
             }
             return;
+        }
         
         String oldName = currentUser.getName();
         String oldPhone = currentUser.getPhone();

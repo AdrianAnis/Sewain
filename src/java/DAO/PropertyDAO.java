@@ -23,6 +23,7 @@ public class PropertyDAO {
                 "verificationStatus VARCHAR(50) NOT NULL DEFAULT 'Pending', " +
                 "flagStatus VARCHAR(50) NOT NULL DEFAULT 'None', " +
                 "flagReason TEXT, " +
+                "flagCount INT NOT NULL DEFAULT 0, " +
                 "photos TEXT, " +
                 "description TEXT, " +
                 "facilities TEXT, " +
@@ -82,6 +83,7 @@ public class PropertyDAO {
                     try { stmt.execute("ALTER TABLE properties ADD COLUMN verificationStatus VARCHAR(50) NOT NULL DEFAULT 'Pending'"); } catch (SQLException ignored) {}
                     try { stmt.execute("ALTER TABLE properties ADD COLUMN flagStatus VARCHAR(50) NOT NULL DEFAULT 'None'"); } catch (SQLException ignored) {}
                     try { stmt.execute("ALTER TABLE properties ADD COLUMN flagReason TEXT"); } catch (SQLException ignored) {}
+                    try { stmt.execute("ALTER TABLE properties ADD COLUMN flagCount INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
                     try { stmt.execute("ALTER TABLE properties ADD COLUMN ownerId INT NOT NULL DEFAULT 1"); } catch (SQLException ignored) {}
                     try { stmt.execute("ALTER TABLE properties ADD COLUMN gender VARCHAR(50)"); } catch (SQLException ignored) {}
                     try { stmt.execute("ALTER TABLE properties ADD COLUMN roomType VARCHAR(100)"); } catch (SQLException ignored) {}
@@ -178,7 +180,7 @@ public class PropertyDAO {
     // Dynamic search instantiating concrete subclass objects from model package
     public List<Property> searchProperties(String name, String location, String priceRange, String propertyType) {
         List<Property> results = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT p.*, u.name AS ownerName FROM properties p LEFT JOIN users u ON p.ownerId = u.userId WHERE p.verificationStatus = 'Approved' AND p.availability = 1");
+        StringBuilder sql = new StringBuilder("SELECT p.*, u.name AS ownerName FROM properties p LEFT JOIN users u ON p.ownerId = u.userId WHERE p.verificationStatus = 'Approved' AND p.flagCount = 0 AND p.availability = 1");
         List<Object> params = new ArrayList<>();
 
         if (name != null && !name.trim().isEmpty()) {
@@ -241,7 +243,7 @@ public class PropertyDAO {
             return results;
         }
 
-        StringBuilder sql = new StringBuilder("SELECT * FROM properties WHERE propertyId IN (");
+        StringBuilder sql = new StringBuilder("SELECT * FROM properties WHERE verificationStatus = 'Approved' AND flagCount = 0 AND propertyId IN (");
         for (int i = 0; i < ids.size(); i++) {
             sql.append("?");
             if (i < ids.size() - 1) {
@@ -304,6 +306,9 @@ public class PropertyDAO {
         prop.setOwnerId(ownerId);
         try {
             prop.setFlagReason(rs.getString("flagReason"));
+        } catch(SQLException ignored) {}
+        try {
+            prop.setFlagCount(rs.getInt("flagCount"));
         } catch(SQLException ignored) {}
         return prop;
     }
@@ -545,10 +550,40 @@ public class PropertyDAO {
         }
     }
 
+    public boolean incrementFlagCount(int propertyId, String reason) {
+        String countSql = "SELECT flagCount FROM properties WHERE propertyId = ?";
+        String updateSql = "UPDATE properties SET flagCount = ?, flagStatus = ?, flagReason = ? WHERE propertyId = ?";
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            int currentCount = 0;
+            try (PreparedStatement pstmt = conn.prepareStatement(countSql)) {
+                pstmt.setInt(1, propertyId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        currentCount = rs.getInt("flagCount");
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            int newCount = currentCount + 1;
+            String newStatus = (newCount >= 3) ? "Banned" : "Flagged";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+                pstmt.setInt(1, newCount);
+                pstmt.setString(2, newStatus);
+                pstmt.setString(3, reason);
+                pstmt.setInt(4, propertyId);
+                return pstmt.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<Property> getLandingProperties() {
         List<Property> results = new ArrayList<>();
         String sql = "SELECT p.*, u.name AS ownerName FROM properties p LEFT JOIN users u ON p.ownerId = u.userId " +
-                     "WHERE (p.flagStatus = 'None' OR p.flagStatus IS NULL OR p.flagStatus = '') " +
+                     "WHERE p.verificationStatus = 'Approved' AND p.flagCount = 0 " +
                      "ORDER BY p.price DESC";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

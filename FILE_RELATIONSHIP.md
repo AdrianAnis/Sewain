@@ -1,20 +1,20 @@
 # Hubungan Antar File, Kegunaan Kelas, & Analisis OOP — SewaIn
 
-Dokumentasi ini menyajikan analisis mendalam mengenai struktur kode, alur komunikasi antar-komponen, audit kegunaan kelas-kelas model, pemetaan fitur per peran (*role*), temuan kode yang tidak digunakan atau menyimpang dari arsitektur MVC, serta evaluasi kesehatan prinsip Pemrograman Berorientasi Objek (OOP) pada proyek **SewaIn**.
+Dokumentasi ini menyajikan analisis mendalam mengenai struktur kode, alur komunikasi antar-komponen, audit kegunaan kelas-kelas model, pemetaan fitur per peran (*peran*), temuan kode yang tidak digunakan atau menyimpang dari arsitektur MVC, serta evaluasi kesehatan prinsip Pemrograman Berorientasi Objek (OOP) pada proyek **SewaIn**.
 
 ---
 
 ## DAFTAR ISI
-1. [SECTION 1: Pendahuluan & Gambaran Umum Sistem](#section-1-pendahuluan--gambaran-umum-sistem)
-2. [SECTION 2: Peta Hubungan Antar Berkas (File Relationship Map)](#section-2-peta-hubungan-antar-berkas-file-relationship-map)
-3. [SECTION 3: Analisis Keberadaan & Penggunaan Kelas Model (Model Audit)](#section-3-analisis-keberadaan--penggunaan-kelas-model-model-audit)
-4. [SECTION 4: Fitur per Peran & Alur Kerja (Feature Mapping)](#section-4-fitur-per-peran--alur-kerja-feature-mapping)
-5. [SECTION 5: Kode Bermasalah, Tidak Digunakan & MVC Bypass (Issues & Dead Code)](#section-5-kode-bermasalah-tidak-digunakan--mvc-bypass-issues--dead-code)
-6. [SECTION 6: Analisis Kesehatan Prinsip OOP & Kesimpulan (OOP Health Audit)](#section-6-analisis-kesehatan-prinsip-oop--kesimpulan-oop-health-audit)
+1. [BAGIAN 1: Pendahuluan & Gambaran Umum Sistem](#section-1-pendahuluan--gambaran-umum-sistem)
+2. [BAGIAN 2: Peta Hubungan Antar Berkas (Peta Hubungan Berkas)](#section-2-peta-hubungan-antar-berkas-file-relationship-map)
+3. [BAGIAN 3: Analisis Keberadaan & Penggunaan Kelas Model (Audit Model)](#section-3-analisis-keberadaan--penggunaan-kelas-model-model-audit)
+4. [BAGIAN 4: Fitur per Peran & Alur Kerja (Pemetaan Fitur)](#section-4-fitur-per-peran--alur-kerja-feature-mapping)
+5. [BAGIAN 5: Kode Bermasalah, Tidak Digunakan & MVC Bypass (Masalah & Kode Mati)](#section-5-kode-bermasalah-tidak-digunakan--mvc-bypass-issues--dead-code)
+6. [BAGIAN 6: Analisis Kesehatan Prinsip OOP & Kesimpulan (Audit Kesehatan OOP)](#section-6-analisis-kesehatan-prinsip-oop--kesimpulan-oop-health-audit)
 
 ---
 
-## SECTION 1: Pendahuluan & Gambaran Umum Sistem
+## BAGIAN 1: Pendahuluan & Gambaran Umum Sistem
 
 **SewaIn** adalah platform berbasis web untuk menyewa properti (Kost, Rumah, Kontrakan, dan Apartemen) yang dirancang menggunakan arsitektur **Model-View-Controller (MVC)** dengan **Java Servlet (Controller)**, **JSP (View)**, **MySQL (Database)**, dan **DAO (Data Access Object / Model Helper)**.
 
@@ -22,7 +22,7 @@ Proyek ini bertujuan memisahkan logika bisnis (*backend*), interaksi basis data,
 
 ---
 
-## SECTION 2: Peta Hubungan Antar Berkas (File Relationship Map)
+## BAGIAN 2: Peta Hubungan Antar Berkas (Peta Hubungan Berkas)
 
 Sistem berkomunikasi secara berjenjang dari **Client-Side (JSP + JS)** $\rightarrow$ **Controller (Servlet)** $\rightarrow$ **Data Access Object (DAO)** $\rightarrow$ **Database (MySQL)**.
 
@@ -56,9 +56,9 @@ graph TD
     Servlet -->|Forward Attribute / JSON| JSP
 ```
 
-### 2.2 Hubungan Pemanggilan (Call Registry)
+### 2.2 Hubungan Pemanggilan (Daftar Pemanggilan)
 
-| Berkas Pengirim (Caller) | Berkas Penerima (Callee) | Tujuan & Metode Transmisi Data |
+| Berkas Pengirim (Pemanggil) | Berkas Penerima (Penerima) | Tujuan & Metode Transmisi Data |
 | :--- | :--- | :--- |
 | **`login.jsp`** | `LoginController` | Mengirim data login (email & password) via POST. |
 | **`register.jsp`** | `RegisterController` | Mengirim data registrasi pengguna baru via POST. |
@@ -79,7 +79,7 @@ graph TD
 
 ---
 
-## SECTION 3: Analisis Keberadaan & Penggunaan Kelas Model (Model Audit)
+## BAGIAN 3: Analisis Keberadaan & Penggunaan Kelas Model (Audit Model)
 
 Di dalam package `model`, terdapat 15 kelas model. Berikut adalah hasil audit riil mengenai penggunaan kelas-kelas tersebut di dalam codebase SewaIn:
 
@@ -87,27 +87,27 @@ Di dalam package `model`, terdapat 15 kelas model. Berikut adalah hasil audit ri
 
 | Kelas Model | Tipe | Status Penggunaan Riil | Keterangan & Analisis Detail |
 | :--- | :--- | :--- | :--- |
-| **`User`** | `Abstract Class` | **AKTIF** | Mewakili pengguna sistem. Diwarisi oleh `Tenant`, `Owner`, dan `Admin`. Digunakan secara luas dalam otentikasi session. |
-| **`Tenant`** | `Concrete Class` | **AKTIF** | Diinstansiasi secara eksplisit oleh `RegisterController` saat pendaftaran (`new Tenant()`) dan `UserDAOImpl` jika kolom `role` bernilai `'Tenant'`. Memiliki metode operasional (`viewProperty()`, `addToWishlist()`, `reportProperty()`) yang dipanggil secara polimorfis oleh controller masing-masing untuk logging aktivitas. |
-| **`Owner`** | `Concrete Class` | **AKTIF (Terbatas)** | Diinstansiasi oleh `UserDAOImpl` jika kolom `role` bernilai `'Owner'`. Merupakan kelas kosong (hanya memanggil constructor `super`). |
-| **`Admin`** | `Concrete Class` | **AKTIF (Terbatas)** | Diinstansiasi oleh `UserDAOImpl` jika kolom `role` bernilai `'Admin'`. Memiliki metode dummy logging yang tidak pernah dipanggil secara operasional. |
-| **`Property`** | `Abstract Class` | **AKTIF** | Kelas dasar untuk semua jenis properti. Diwarisi oleh `Kost`, `Rumah`, `Kontrakan`, dan `Apartement`. Digunakan dalam mapping DAO dan serialisasi JSON. |
-| **`Kost`** | `Concrete Class` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Kost'`. Memuat properti khusus `gender` dan `roomType`. |
-| **`Rumah`** | `Concrete Class` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Rumah'`. Memuat properti khusus `jumlahKamar` dan `luasTanah`. |
-| **`Kontrakan`** | `Concrete Class` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Kontrakan'`. Memuat properti khusus `jumlahKamar` dan `durasiMinimum`. |
-| **`Apartement`** | `Concrete Class` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Apartement'`. Memuat properti khusus `lantai`, `nomorUnit`, dan `tipeUnit`. |
+| **`User`** | `Kelas Abstrak` | **AKTIF** | Mewakili pengguna sistem. Diwarisi oleh `Tenant`, `Owner`, dan `Admin`. Digunakan secara luas dalam otentikasi session. |
+| **`Tenant`** | `Kelas Konkret` | **AKTIF** | Diinstansiasi secara eksplisit oleh `RegisterController` saat pendaftaran (`new Tenant()`) dan `UserDAOImpl` jika kolom `peran` bernilai `'Tenant'`. Memiliki metode operasional (`viewProperty()`, `addToWishlist()`, `reportProperty()`) yang dipanggil secara polimorfis oleh controller masing-masing untuk logging aktivitas. |
+| **`Owner`** | `Kelas Konkret` | **AKTIF (Terbatas)** | Diinstansiasi oleh `UserDAOImpl` jika kolom `peran` bernilai `'Owner'`. Merupakan kelas kosong (hanya memanggil constructor `super`). |
+| **`Admin`** | `Kelas Konkret` | **AKTIF (Terbatas)** | Diinstansiasi oleh `UserDAOImpl` jika kolom `peran` bernilai `'Admin'`. Memiliki metode dummy logging yang tidak pernah dipanggil secara operasional. |
+| **`Property`** | `Kelas Abstrak` | **AKTIF** | Kelas dasar untuk semua jenis properti. Diwarisi oleh `Kost`, `Rumah`, `Kontrakan`, dan `Apartement`. Digunakan dalam mapping DAO dan serialisasi JSON. |
+| **`Kost`** | `Kelas Konkret` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Kost'`. Memuat properti khusus `gender` dan `roomType`. |
+| **`Rumah`** | `Kelas Konkret` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Rumah'`. Memuat properti khusus `jumlahKamar` dan `luasTanah`. |
+| **`Kontrakan`** | `Kelas Konkret` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Kontrakan'`. Memuat properti khusus `jumlahKamar` dan `durasiMinimum`. |
+| **`Apartement`** | `Kelas Konkret` | **AKTIF** | Diinstansiasi oleh `PropertyDAO` ketika `propertyType` bernilai `'Apartement'`. Memuat properti khusus `lantai`, `nomorUnit`, dan `tipeUnit`. |
 | **`Reportable`**| `Interface` | **AKTIF** | Mengatur implementasi kemampuan objek untuk dilaporkan (`report()`, `getReportStatus()`, dan `createReport()`). Diimplementasikan oleh `User` dan `Property`. |
-| **`Report`** | `Concrete Class` | **AKTIF** | Menyimpan data pelaporan properti/penipuan. Diinstansiasi oleh `SubmitReportController` (`new Report()`) dan dibaca oleh `ReportDAO`. |
-| **`ActivityLog`**| `Concrete Class` | **AKTIF** | Digunakan saat membaca log aktivitas admin di `AdminActivityServlet` melalui `ActivityLogDAO.getLogs()`. |
-| **`Wishlist`** | `Concrete Class` | **TIDAK AKTIF** | **Sama sekali tidak pernah diinstansiasi (`new Wishlist()`)**. Logika penyimpanan wishlist dilakukan secara eksklusif di sisi klien (*localStorage*) dan dimuat ke basis data melalui kueri properti berdasarkan ID. |
-| **`Flag`** | `Concrete Class` | **TIDAK AKTIF** | **Sama sekali tidak pernah diinstansiasi**. Status flag properti (apakah properti diblokir/diberi peringatan) diproses sebagai atribut `String` (`flagStatus` & `flagReason`) langsung di tabel `properties`. |
-| **`Verification`**| `Concrete Class` | **TIDAK AKTIF** | **Sama sekali tidak pernah diinstansiasi**. Status verifikasi properti (`Pending`, `Approved`, `Rejected`) disimpan sebagai atribut `String` (`verificationStatus`) langsung di tabel `properties`. |
+| **`Report`** | `Kelas Konkret` | **AKTIF** | Menyimpan data pelaporan properti/penipuan. Diinstansiasi oleh `SubmitReportController` (`new Report()`) dan dibaca oleh `ReportDAO`. |
+| **`ActivityLog`**| `Kelas Konkret` | **AKTIF** | Digunakan saat membaca log aktivitas admin di `AdminActivityServlet` melalui `ActivityLogDAO.getLogs()`. |
+| **`Wishlist`** | `Kelas Konkret` | **TIDAK AKTIF** | **Sama sekali tidak pernah diinstansiasi (`new Wishlist()`)**. Logika penyimpanan wishlist dilakukan secara eksklusif di sisi klien (*localStorage*) dan dimuat ke basis data melalui kueri properti berdasarkan ID. |
+| **`Flag`** | `Kelas Konkret` | **TIDAK AKTIF** | **Sama sekali tidak pernah diinstansiasi**. Status flag properti (apakah properti diblokir/diberi peringatan) diproses sebagai atribut `String` (`flagStatus` & `flagReason`) langsung di tabel `properties`. |
+| **`Verification`**| `Kelas Konkret` | **TIDAK AKTIF** | **Sama sekali tidak pernah diinstansiasi**. Status verifikasi properti (`Pending`, `Approved`, `Rejected`) disimpan sebagai atribut `String` (`verificationStatus`) langsung di tabel `properties`. |
 
 ---
 
-## SECTION 4: Fitur per Peran & Alur Kerja (Feature Mapping)
+## BAGIAN 4: Fitur per Peran & Alur Kerja (Pemetaan Fitur)
 
-Proyek SewaIn membagi fitur berdasarkan tiga peran pengguna (*role*). Di bawah ini adalah rincian berkas yang terlibat dalam setiap alur kerja fitur:
+Proyek SewaIn membagi fitur berdasarkan tiga peran pengguna (*peran*). Di bawah ini adalah rincian berkas yang terlibat dalam setiap alur kerja fitur:
 
 ### 4.1 Fitur Tenant (Penyewa)
 *   **Registrasi Akun**:
@@ -159,7 +159,7 @@ Proyek SewaIn membagi fitur berdasarkan tiga peran pengguna (*role*). Di bawah i
 
 ---
 
-## SECTION 5: Kode Bermasalah, Tidak Digunakan & MVC Bypass (Issues & Dead Code)
+## BAGIAN 5: Kode Bermasalah, Tidak Digunakan & MVC Bypass (Masalah & Kode Mati)
 
 Dalam audit kode ini, ditemukan beberapa bagian kode yang menyimpang dari struktur MVC bersih, metode mati, serta ketidaksesuaian fungsional model.
 
@@ -169,8 +169,8 @@ Dalam audit kode ini, ditemukan beberapa bagian kode yang menyimpang dari strukt
     *   *Detail Perbaikan*: Dibuat kelas kontroler baru **`DetailPropertyController.java`** yang memetakan URL `/property/detail`. Kontroler ini bertindak sebagai perantara yang memverifikasi sesi pengguna, memanggil metode `Tenant.viewProperty()` secara polimorfis, mengambil daftar properti dari `PropertyDAO`, menetapkannya sebagai atribut request (`propertiesList`), kemudian meneruskan (*forward*) request ke `detail.jsp`.
     *   *Dampak Positif*: Menghilangkan ketergantungan langsung View (`detail.jsp`) terhadap instansiasi DAO, menjaga kepatuhan pola MVC, serta memastikan bahwa metode model `Tenant.viewProperty()` terpanggil secara tepat waktu saat pengguna mengakses detail properti.
 
-### 5.2 Kode Mati & Kelas Model Tidak Digunakan (Dead Code & Ghost Models)
-1.  **Ghost Models (`Wishlist`, `Flag`, `Verification`)**:
+### 5.2 Kode Mati & Kelas Model Tidak Digunakan (Kode Mati & Model Fiktif)
+1.  **Model Fiktif (`Wishlist`, `Flag`, `Verification`)**:
     *   Kelas-kelas ini didefinisikan secara formal dalam package `model` untuk memenuhi tugas diagram kelas PBO.
     *   Namun, di dalam kode operasional, objek ini **tidak pernah dibuat** (`new Flag()`, `new Verification()`, `new Wishlist()`). 
     *   Status verifikasi dan flag dikelola sebagai atribut basis data bertipe `String` yang dipetakan ke dalam properti kelas `Property.java`.
@@ -181,23 +181,23 @@ Dalam audit kode ini, ditemukan beberapa bagian kode yang menyimpang dari strukt
 
 ---
 
-## SECTION 6: Analisis Kesehatan Prinsip OOP & Kesimpulan (OOP Health Audit)
+## BAGIAN 6: Analisis Kesehatan Prinsip OOP & Kesimpulan (Audit Kesehatan OOP)
 
 Meskipun terdapat beberapa bagian kode mati, arsitektur OOP dasar dari SewaIn dikategorikan cukup baik dan memenuhi standar proyek PBO semester 4.
 
 ### 6.1 Penerapan Empat Pilar OOP
-1.  **Inheritance (Pewarisan)**:
+1.  **Pewarisan (Inheritance)**:
     *   Berjalan dengan sangat baik pada kelas pengguna (`User` $\rightarrow$ `Tenant`, `Owner`, `Admin`) dan kelas hunian (`Property` $\rightarrow$ `Kost`, `Rumah`, `Kontrakan`, `Apartement`).
     *   Pewarisan ini menyederhanakan kode dasar dan menjaga konsistensi data yang dibagi bersama.
-2.  **Polymorphism (Polimorfisme)**:
+2.  **Polimorfisme (Polymorphism)**:
     *   **Polimorfisme Dinamis**: Berjalan pada method `toJson()` dan `getSpecificDetails()` di setiap subclass properti. Ketika `PropertyDAO` memanggil `toJson()` pada objek `Property`, sistem secara runtime memanggil implementasi khusus milik subclass terkait (`Kost.toJson()`, `Rumah.toJson()`, dsb.).
     *   **Interface**: Antarmuka `Reportable` berhasil diimplementasikan baik oleh `User` maupun `Property` untuk menyamakan kontrak penanganan pelaporan pelanggaran.
-3.  **Encapsulation (Enkapsulasi)**:
+3.  **Enkapsulasi (Encapsulation)**:
     *   Seluruh atribut pada kelas model dideklarasikan dengan akses kontrol `private` atau `protected` dan diakses melalui metode *getter* dan *setter*.
-4.  **Abstraction (Abstraksi)**:
+4.  **Abstraksi (Abstraction)**:
     *   Kelas `User` dan `Property` dideklarasikan sebagai kelas abstrak (`abstract class`) untuk mencegah instansiasi langsung secara ilegal tanpa spesifikasi tipe konkret.
 
-### 6.2 Implementasi Single Table Inheritance (STI)
+### 6.2 Implementasi Pewarisan Tabel Tunggal (STI)
 Di sisi basis data, pengembang tidak memisahkan tabel untuk kost, rumah, apartemen, dan kontrakan. Sebaliknya, seluruh hunian disimpan dalam satu tabel tunggal yaitu `properties`.
 *   `PropertyDAO.java` bertindak sebagai mapper STI. Saat data ditarik dari basis data, DAO memeriksa nilai kolom discriminator `propertyType`.
 *   Berdasarkan nilai tersebut, subclass yang sesuai akan diinstansiasi (`Kost`, `Rumah`, dsb.).

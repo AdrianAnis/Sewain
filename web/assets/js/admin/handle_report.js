@@ -1,41 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("report-search");
-    const statusFilter = document.getElementById("status-filter");
-
-    if (searchInput) searchInput.addEventListener("input", filterReports);
-    if (statusFilter) statusFilter.addEventListener("change", filterReports);
 
     updateReportCount();
 });
 
-// 1. Client-Side Filters
-function filterReports() {
-    const query = document.getElementById("report-search").value.toLowerCase().trim();
-    const status = document.getElementById("status-filter").value.toLowerCase();
-
-    const rows = document.querySelectorAll(".report-row");
-    let matchCount = 0;
-
-    rows.forEach(row => {
-        const propName = row.getAttribute("data-prop-name").toLowerCase();
-        const tenantName = row.getAttribute("data-tenant-name").toLowerCase();
-        const issue = row.getAttribute("data-issue").toLowerCase();
-        const desc = row.getAttribute("data-desc").toLowerCase();
-        const rowStatus = row.getAttribute("data-status").toLowerCase();
-
-        const matchesQuery = propName.includes(query) || tenantName.includes(query) || issue.includes(query) || desc.includes(query);
-        const matchesStatus = (status === "all") || (rowStatus === status);
-
-        if (matchesQuery && matchesStatus) {
-            row.style.display = "";
-            matchCount++;
-        } else {
-            row.style.display = "none";
-        }
-    });
-
-    updateReportCount(matchCount);
-}
 
 function updateReportCount(count = null) {
     const badge = document.getElementById("report-count-badge");
@@ -48,8 +15,8 @@ function updateReportCount(count = null) {
 }
 
 // 2. Resolve Report (Tandai Selesai) via AJAX
-function resolveReport(reportId) {
-    if (!confirm("Apakah Anda yakin ingin menandai laporan ini sebagai SELESAI?")) return;
+async function resolveReport(reportId) {
+    if (!(await SewainAlert.confirm("Apakah Anda yakin ingin menandai laporan ini sebagai SELESAI?"))) return;
 
     showLoader();
 
@@ -69,14 +36,15 @@ function resolveReport(reportId) {
         hideLoader();
         if (data.success) {
             updateReportRowStatus(reportId, "Resolved");
+            SewainAlert.success("Laporan berhasil diselesaikan.");
         } else {
-            alert(data.message || "Gagal menyelesaikan laporan.");
+            SewainAlert.error(data.message || "Gagal menyelesaikan laporan.");
         }
     })
     .catch(error => {
         hideLoader();
         console.error("Error resolving report:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 
@@ -97,12 +65,12 @@ function updateReportRowStatus(reportId, newStatus) {
         actionCell.innerHTML = `<span class="text-success text-xs font-bold"><i class="fa-solid fa-circle-check"></i> Selesai</span>`;
     }
 
-    filterReports();
 }
 
 // 3. Flag Property via Modal
-function openFlagModal(propertyId, propertyName) {
+function openFlagModal(propertyId, propertyName, reportId) {
     document.getElementById("flag-property-id").value = propertyId;
+    document.getElementById("flag-report-id").value = reportId;
     document.getElementById("flag-prop-display-name").textContent = propertyName;
     document.getElementById("flag-reason").value = "";
     document.getElementById("flag-modal").style.display = "flex";
@@ -116,6 +84,7 @@ function executeFlag(event) {
     event.preventDefault();
 
     const propertyId = document.getElementById("flag-property-id").value;
+    const reportId = document.getElementById("flag-report-id").value;
     const reason = document.getElementById("flag-reason").value.trim();
 
     closeFlagModal();
@@ -124,6 +93,7 @@ function executeFlag(event) {
     const params = new URLSearchParams();
     params.append("action", "flagProperty");
     params.append("propertyId", propertyId);
+    params.append("reportId", reportId);
     params.append("reason", reason);
 
     fetch(`${window.contextPath}/admin/reports`, {
@@ -137,17 +107,17 @@ function executeFlag(event) {
     .then(data => {
         hideLoader();
         if (data.success) {
-            alert("Properti berhasil ditandai (flagged) dan ditangguhkan.");
-            // Reload page to reflect updated property status across all related reports
-            window.location.reload();
+            SewainAlert.success("Properti berhasil ditandai (flagged) dan ditangguhkan.").then(() => {
+                window.location.reload();
+            });
         } else {
-            alert(data.message || "Gagal menandai properti.");
+            SewainAlert.error(data.message || "Gagal menandai properti.");
         }
     })
     .catch(error => {
         hideLoader();
         console.error("Error flagging property:", error);
-        alert("Terjadi kesalahan koneksi server.");
+        SewainAlert.error("Terjadi kesalahan koneksi server.");
     });
 }
 

@@ -339,6 +339,7 @@
                 </form>
 
                 <!-- SCRIPTS -->
+                <script src="${pageContext.request.contextPath}/assets/js/shared/ui-alerts.js"></script>
                 <script src="${pageContext.request.contextPath}/assets/js/profile-dropdown.js"></script>
                 <script src="${pageContext.request.contextPath}/assets/js/owner/add_property.js"></script>
             </body>

@@ -12,6 +12,10 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
+/*
+  ALTER TABLE properties 
+  ADD COLUMN flagCount INT NOT NULL DEFAULT 0;
+*/
 @WebServlet(name = "AdminReportServlet", urlPatterns = {"/admin/reports"})
 public class AdminReportServlet extends HttpServlet {
 
@@ -81,6 +85,7 @@ public class AdminReportServlet extends HttpServlet {
 
         } else if ("flagProperty".equalsIgnoreCase(action)) {
             String propertyIdParam = request.getParameter("propertyId");
+            String reportIdParam = request.getParameter("reportId");
             String reason = request.getParameter("reason");
 
             if (propertyIdParam == null || reason == null || reason.trim().isEmpty()) {
@@ -97,8 +102,16 @@ public class AdminReportServlet extends HttpServlet {
                 return;
             }
 
-            boolean success = propertyDAO.updateFlagStatus(propertyId, "Flagged", reason);
+            boolean success = propertyDAO.incrementFlagCount(propertyId, reason);
             if (success) {
+                if (reportIdParam != null && !reportIdParam.isEmpty()) {
+                    try {
+                        int reportId = Integer.parseInt(reportIdParam);
+                        ReportDAO reportDAO = new ReportDAO();
+                        reportDAO.updateReportStatus(reportId, "Resolved");
+                    } catch (Exception ignored) {}
+                }
+
                 String desc = "Admin " + currentUser.getName() + " menandai (flagged) properti: " + prop.getName() + " (ID: " + propertyId + ") karena: " + reason;
                 logDAO.addLog(adminId, "FLAG PROPERTY", desc);
                 response.getWriter().write("{\"success\": true}");

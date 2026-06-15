@@ -2,6 +2,7 @@
 <%@page import="model.User, model.Report" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <% 
     // Ensure user session exists and role is admin 
     User currentUser = (User) session.getAttribute("userSession");
@@ -30,8 +31,8 @@
     <!-- CSS Stylesheets -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/global.css?v=1.4" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/shared/components.css?v=1.4" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin/dashboard_admin.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin/handle_report.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin/dashboard_admin.css?v=2.1" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin/handle_report.css?v=3.2" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script>
@@ -48,93 +49,43 @@
     <div class="admin-container">
         
         <!-- SIDEBAR -->
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar-floating">
             <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fa-solid fa-leaf logo-icon"></i>
-                    <span>Sewa<span class="logo-highlight">In</span> Admin</span>
-                </div>
+                <span class="brand-title">Sewa<span class="logo-highlight">In</span></span>
             </div>
-            
             <nav class="sidebar-menu">
-                <a href="${pageContext.request.contextPath}/admin/dashboard" class="menu-item">
-                    <i class="fa-solid fa-gauge"></i>
-                    <span>Dashboard</span>
+                <a href="${pageContext.request.contextPath}/admin/dashboard" class="menu-item ${pageContext.request.requestURI.contains('dashboard') ? 'active' : ''}">
+                    <i class="fa-solid fa-table-cells-large"></i> <span>Dashboard</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/admin/users" class="menu-item">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Kelola User</span>
+                <a href="${pageContext.request.contextPath}/admin/verify" class="menu-item ${pageContext.request.requestURI.contains('verify') ? 'active' : ''}">
+                    <i class="fa-solid fa-shield-halved"></i> <span>Verification</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/admin/verify" class="menu-item">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>Verifikasi Properti</span>
+                <a href="${pageContext.request.contextPath}/admin/users" class="menu-item ${pageContext.request.requestURI.contains('users') ? 'active' : ''}">
+                    <i class="fa-solid fa-user-gear"></i> <span>User Management</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/admin/reports" class="menu-item active">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Kelola Laporan</span>
-                    <c:if test="${not empty reports}">
-                        <!-- Will display count dynamically -->
-                    </c:if>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/flagged" class="menu-item">
-                    <i class="fa-solid fa-flag"></i>
-                    <span>Properti Bermasalah</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/activity" class="menu-item">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                    <span>Log Aktivitas</span>
+                <a href="${pageContext.request.contextPath}/admin/reports" class="menu-item ${pageContext.request.requestURI.contains('reports') || pageContext.request.requestURI.contains('handle_report') || pageContext.request.requestURI.contains('flagged') ? 'active' : ''}">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <span>Reports & Flagging</span>
                 </a>
             </nav>
-            
             <div class="sidebar-footer">
-                <div class="admin-profile">
-                    <div class="profile-avatar">
+                <div class="user-profile-sidebar" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 16px; background-color: var(--bg-soft); border-radius: 16px;">
+                    <div class="avatar-circle" style="width: 42px; height: 42px; background-color: #FFFFFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary-dark); font-size: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-user-shield"></i>
                     </div>
-                    <div class="profile-info">
-                        <span class="profile-name"><%= currentUser.getName() %></span>
-                        <span class="profile-role">Senior Administrator</span>
+                    <div class="user-info-text" style="display: flex; flex-direction: column;">
+                        <span style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);"><%= currentUser.getName() %></span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Administrator</span>
                     </div>
                 </div>
-                <a href="${pageContext.request.contextPath}/logout" class="btn-logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Keluar</span>
+                <a href="${pageContext.request.contextPath}/logout" class="btn-logout-minimal" style="width: 100%; justify-content: center; background-color: #FDF3F2; color: #D9534F;">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
                 </a>
             </div>
         </aside>
 
         <!-- MAIN CONTENT -->
         <main class="admin-main">
-            <!-- HEADER -->
-            <header class="main-header">
-                <div class="header-title-container">
-                    <h1 class="main-title">Kelola Laporan</h1>
-                    <ul class="breadcrumb">
-                        <li><a href="${pageContext.request.contextPath}/admin/dashboard">Admin</a></li>
-                        <li><i class="fa-solid fa-chevron-right separator"></i></li>
-                        <li class="active">Kelola Laporan</li>
-                    </ul>
-                </div>
-            </header>
 
-            <!-- FILTER BAR -->
-            <section class="filter-card">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="report-search" placeholder="Cari nama properti, pelapor, atau jenis pelanggaran...">
-                </div>
-                
-                <div class="filter-options">
-                    <div class="filter-group">
-                        <label for="status-filter"><i class="fa-solid fa-filter"></i> Status:</label>
-                        <select id="status-filter">
-                            <option value="all">Semua Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="resolved">Selesai (Resolved)</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
 
             <!-- REPORTS TABLE -->
             <section class="table-card">
@@ -175,31 +126,30 @@
                                     </td>
                                     <td class="text-muted text-sm desc-cell" title="${r.description}">${r.description}</td>
                                     <td>
-                                        <span class="status-badge status-${r.status.toLowerCase()}" style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <span class="status-badge status-${r.status.toLowerCase()}">
                                             <c:choose>
                                                 <c:when test="${r.status.equalsIgnoreCase('resolved')}">
-                                                    <i class="fa-solid fa-circle-check"></i>
+                                                    <i class="fa-solid fa-circle-check"></i> Resolved
                                                 </c:when>
                                                 <c:when test="${r.status.equalsIgnoreCase('investigating')}">
-                                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                                    <i class="fa-solid fa-magnifying-glass"></i> Investigating
                                                 </c:when>
                                                 <c:when test="${r.status.equalsIgnoreCase('rejected')}">
-                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                    <i class="fa-solid fa-circle-xmark"></i> Rejected
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <i class="fa-solid fa-clock"></i>
+                                                    <i class="fa-solid fa-clock"></i> Pending
                                                 </c:otherwise>
                                             </c:choose>
-                                            ${r.status}
                                         </span>
                                     </td>
                                     <td>
                                         <div class="action-buttons">
                                             <c:if test="${r.status.equalsIgnoreCase('pending')}">
-                                                <button class="btn-action btn-resolve" onclick="resolveReport(${r.reportId})" title="Tandai Selesai">
-                                                    <i class="fa-solid fa-square-check"></i>
+                                                <button class="btn-action btn-reject" onclick="resolveReport(${r.reportId})" title="Tolak Laporan">
+                                                    <i class="fa-solid fa-xmark"></i>
                                                 </button>
-                                                <button class="btn-action btn-flag" onclick="openFlagModal(${r.propertyId}, '${r.propertyName}')" title="Flag Properti">
+                                                <button class="btn-action btn-flag" onclick="openFlagModal(${r.propertyId}, '${fn:escapeXml(r.propertyName)}', ${r.reportId})" title="Flag Properti">
                                                     <i class="fa-solid fa-flag"></i>
                                                 </button>
                                             </c:if>
@@ -235,6 +185,7 @@
             <div class="modal-body">
                 <form id="flag-form" onsubmit="executeFlag(event)">
                     <input type="hidden" id="flag-property-id">
+                    <input type="hidden" id="flag-report-id">
                     <p class="form-instruction">Menandai properti <strong><span id="flag-prop-display-name"></span></strong> akan menangguhkan iklan ini sehingga tidak terlihat di hasil pencarian tenant. Harap masukkan alasan pemberian flag.</p>
                     <div class="form-group">
                         <label for="flag-reason">Alasan Pemberian Flag:</label>
@@ -250,6 +201,7 @@
     </div>
 
     <!-- JS Scripts -->
-    <script src="${pageContext.request.contextPath}/assets/js/admin/handle_report.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/shared/ui-alerts.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/admin/handle_report.js?v=3.2"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ window.goToStep = function(step) {
         });
 
         if (!isValid) {
-            alert("Please fill in all required fields before proceeding.");
+            SewainAlert.alert("Please fill in all required fields before proceeding.", "Incomplete Form", "warning");
             return;
         }
     }
@@ -362,7 +362,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!document.getElementById('propertyTypeInput').value) {
                 e.preventDefault();
                 goToStep(1);
-                alert("Mohon pilih jenis properti (Property Type) terlebih dahulu.");
+                SewainAlert.alert("Mohon pilih jenis properti (Property Type) terlebih dahulu.", "Tipe Belum Dipilih", "warning");
                 return;
             }
 
@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             if (!isValid) {
                 e.preventDefault();
-                alert("Please fill in all required fields before submitting.");
+                SewainAlert.alert("Please fill in all required fields before submitting.", "Incomplete Form", "warning");
                 return;
             }
 

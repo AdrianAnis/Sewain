@@ -229,6 +229,121 @@ body {
   color: #ef4444;
 }
 
+/* Badge di card */
+.badge-flag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+.badge-flag-1 {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+.badge-flag-2 {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fb923c;
+}
+.badge-flag-banned {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+/* Banner di detail */
+.flag-banner {
+  border-radius: 12px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  border-left: 4px solid;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  grid-column: 1 / -1;
+}
+.flag-banner-warning {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+.flag-banner-warning strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+  color: #b45309;
+}
+.flag-banner-warning strong::before {
+  content: '⚠️';
+}
+.flag-banner-banned {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+.flag-banner-banned strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+  color: #b91c1c;
+}
+.flag-banner-banned strong::before {
+  content: '🔴';
+}
+.flag-banner p {
+  margin: 6px 0 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Banner inline di card */
+.flag-warning {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.flag-warning span:first-child {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.flag-1 { 
+  background: #fef9c3; 
+  color: #854d0e; 
+  border: 1px solid #fde047; 
+}
+.flag-2 { 
+  background: #ffedd5; 
+  color: #9a3412; 
+  border: 1px solid #fdba74; 
+}
+.flag-banned { 
+  background: #fee2e2; 
+  color: #991b1b; 
+  border: 1px solid #fca5a5; 
+}
+
+.flag-reason {
+  font-weight: 400;
+  font-size: 0.75rem;
+  opacity: 0.9;
+  line-height: 1.4;
+  margin-left: 22px; /* Aligns with text after emoji */
+}
+
 /* ================================================
    MAIN LAYOUT
    ================================================ */
